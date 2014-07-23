@@ -411,7 +411,7 @@ public class DB {
             c = DriverManager.getConnection(url, user, pass);
             c.setAutoCommit(true);
             PreparedStatement ins =
-                    c.prepareStatement("SELECT * FROM prescription WHERE id = ?");
+                    c.prepareStatement("SELECT * FROM prescription WHERE patientid = ?");
             ins.setInt(1, id);
             res = ins.executeQuery();
         } catch (Exception ex) {

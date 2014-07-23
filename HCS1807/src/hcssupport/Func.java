@@ -678,7 +678,7 @@ public class Func<T> {
                     patientTP[2].setText(res.getString("anamnesis"));
                     patientTP[3].setText(res.getString("diagnosis"));
 
-                    ResultSet rres = DB.db.prescription(res.getInt("prescid"));
+                    ResultSet rres = DB.db.prescription(id);
                     while (rres.next()) {
                         patientTP[1].setText(rres.getString("prescription"));
                     }
