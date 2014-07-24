@@ -1,6 +1,7 @@
 package hcsmain;
 
 import java.util.Date;
+import java.util.Vector;
 
 /**
  *
@@ -13,19 +14,64 @@ import java.util.Date;
 public class PatientInfo {
 
     private int id;
-    private String fname;
-    private String lname;
-    private Date bdate;
-    private String email;
-    private String address;
-    private String zip;
-    private String phone;
-    private String medcard;
-    private String insurrance;
-    private String ssn;
-    private String anam;
-    private String diagn;
-    private String presc;
+    private String fname;//
+    private String lname;//
+    private Date bdate;//
+    private String email;//
+    private String address; //
+    private String zip;//
+    private String phone;//
+    private String medcard;//
+    private String insurrance;//
+    private String ssn;//
+    private String anam; //
+    private String diagn;//
+    private String gmedhistory;//
+    private String illnesshistory;
+    private String medspechistory;
+    private String prescriptions;//
+    private Vector<String> drugs;
+
+    public Vector<String> getDrugs() {
+        return drugs;
+    }
+
+    public void setDrugs(Vector<String> drugs) {
+        this.drugs = drugs;
+    }
+
+
+    public String getPrescriptions() {
+        return prescriptions;
+    }
+
+    public void setPrescriptions(String prescriptions) {
+        this.prescriptions = prescriptions;
+    }
+
+    public String getMedspechistory() {
+        return medspechistory;
+    }
+
+    public String getIllnesshistory() {
+        return illnesshistory;
+    }
+
+    public String getGmedhistory() {
+        return gmedhistory;
+    }
+
+    public void setMedspechistory(String medspechistory) {
+        this.medspechistory = medspechistory;
+    }
+
+    public void setIllnesshistory(String illnesshistory) {
+        this.illnesshistory = illnesshistory;
+    }
+
+    public void setGmedhistory(String gmedhistory) {
+        this.gmedhistory = gmedhistory;
+    }
 
     public void setId(int id) {
         this.id = id;
@@ -77,10 +123,6 @@ public class PatientInfo {
 
     public void setDiagn(String diagn) {
         this.diagn = diagn;
-    }
-
-    public void setPresc(String presc) {
-        this.presc = presc;
     }
 
     public int getId() {
@@ -135,7 +177,4 @@ public class PatientInfo {
         return diagn;
     }
 
-    public String getPresc() {
-        return presc;
-    }
 }

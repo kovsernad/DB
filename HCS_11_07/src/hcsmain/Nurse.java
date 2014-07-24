@@ -45,6 +45,7 @@ public class Nurse {
         JPanel historyilPane = new JPanel();
         JPanel historycPane = new JPanel();
 
+
         //Setting names of panes
         this.NSPanel.add("Patient Form", patientPane);
         this.NSPanel.add("Patient  File", patientcPane);
@@ -63,6 +64,7 @@ public class Nurse {
        this.pthistory.patientHistory(historygPane);
        this.ptillness.patientIllness(historyilPane);
        this.pthistoryc.patientHistoryC(historycPane);
+
 
        this.frame.setContentPane(this.NSPanel);
        this.frame.setTitle("HEALTH CARE SYSTEM. Nurse");
@@ -89,17 +91,18 @@ public class Nurse {
 //    }
 }
 //
-    private int checkTab() {
+    private void checkTab() {
         //listener to trace the number of active pane
         final JTextField tmp = new JTextField();
         tmp.setText(String.valueOf(0));
         this.NSPanel.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent e) {
-                tmp.setText(String.valueOf(NSPanel.getSelectedIndex()));
+
+
             }
         });
-        return Integer.parseInt(tmp.getText());
+       
     }
 
 }

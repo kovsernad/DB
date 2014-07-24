@@ -1,37 +1,58 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package hcsmain;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import DoctorPanes.*;
+import java.awt.*;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
  * @author ContEd Student
  */
 public class Doctor {
-
+    //Creating references of frame and tabbed panels objects
     private JFrame frame;
-    private JPanel GPPanel;
-
-    protected void init(){
-
+    private JTabbedPane DPanel;
+    private PatientDocFile ptfile;
+    private PatientActiveFile pafile;
+    private PatientHistory phistory;
+    
+        public Doctor(){
+            this.init();
+        }
+    
+    private void init(){
+        //Creating objects of frame and tabbed panels objects
         this.frame = new JFrame();
-        this.GPPanel = new JPanel();
+        this.DPanel = new JTabbedPane();
+        this.ptfile = new PatientDocFile(this.DPanel);
+        this.pafile = new PatientActiveFile(this.DPanel);
+        this.phistory = new PatientHistory(this.DPanel);
         
+        //Creating pane objects
+        JPanel pPane = new JPanel();
+        JPanel paPane = new JPanel();
+        JPanel hPane = new JPanel();
         
+        //Setting names of panes
+        this.DPanel.add("Patient File", pPane);
+        this.DPanel.add("Patient Active File", paPane);
+        this.DPanel.add("Patient medical History", hPane);
         
+        pPane.setLayout(new GridBagLayout());
+        paPane.setLayout(new GridBagLayout());
+        hPane.setLayout(new GridBagLayout());
         
-        this.frame.setContentPane(this.GPPanel);
+        this.ptfile.PatientDocFile(pPane);
+        this.pafile.PatientActiveFile(paPane);
+        this.phistory.PatientHistory(hPane);
+                
+        this.frame.setContentPane(this.DPanel);
         this.frame.setTitle("HEALTH CARE SYSTEM. Doctor");
-        this.frame.setSize(1150, 900);
-        this.frame.setResizable(false);
+        this.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize().width - 200,
+                Toolkit.getDefaultToolkit().getScreenSize().height - 100);
+        this.frame.setMinimumSize(new Dimension(900, 600));
         this.frame.setLocationRelativeTo(null);
         this.frame.setVisible(true);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

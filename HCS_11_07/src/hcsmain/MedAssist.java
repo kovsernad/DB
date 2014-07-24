@@ -15,6 +15,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 
+
 /*Medical Assistant Console */
 public class MedAssist {
 
@@ -25,7 +26,6 @@ public class MedAssist {
     private ActivePatient actPatient;
 //    private Appointment appoint;
 //    private NewPatient nPatient;
-
 
     public MedAssist(){
         this.init();
@@ -60,8 +60,70 @@ public class MedAssist {
         String[] labels = {"First Name","Last Name", "Date of birth","e-mail", "address","ZIP","phone","Insurrance",
                            "Medical Card","Social Insurance Number","Last Test","Anamnesis","Diagnose","Prescription"};
 
-        //MA Frame components
-        this.actPatient.ActivePatient(labels, ActivePatientPane);        
+
+
+/*********************************MA Frame components*****************************/
+
+        this.actPatient.ActivePatient(labels, ActivePatientPane);
+
+        //Labels
+        //block one
+//        JLabel patientNameL=new JLabel("Enter the name of the Patient:");
+//        JLabel patientBirthL=new JLabel("Enter the Date of Birth of the Patient:");
+//        //block two
+//
+//
+//        //Text Areas
+//        //block one
+//        JTextArea patientNameTA = new JTextArea(2,20);
+//        patientNameTA.setBorder(BorderFactory.createLineBorder(Color.black));
+//        JTextArea patientBirthTA = new JTextArea(2,20);
+//        patientBirthTA.setBorder(BorderFactory.createLineBorder(Color.black));
+//        JTextArea appointTA = new JTextArea(5,20);
+//        appointTA.setLineWrap(true);
+//        appointTA.setOpaque(true);
+//        appointTA.setEditable(true);
+//        //Scroll Pane
+//        JScrollPane appointSP = new JScrollPane(appointTA);
+//        appointSP.setBorder(BorderFactory.createLineBorder(Color.black));
+//        appointSP.setOpaque(true);
+//        appointSP.setEnabled(true);
+//        appointSP.setSize(350, 450);
+//        appointSP.getViewport().setOpaque(false);
+//        appointSP.getHorizontalScrollBar().setOpaque(false);
+//        appointSP.getVerticalScrollBar().setOpaque(false);
+//        //block two
+////        JTextArea patientGTA = new JTextArea(15,20);
+//
+//        //Border of Pane
+//        TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.
+//                             createEtchedBorder(EtchedBorder.LOWERED),"Appointments: ");
+//        appointSP.setBorder(title);
+//
+//
+//        //Placing into panes
+//        //into MA Pane
+//        //block one
+//        ActivePatientPane.setLayout(new GridBagLayout());
+//        ActivePatientPane.add(patientNameL,new GridBagConstraints(0,0,1,1,0.5,0,GridBagConstraints.CENTER,
+//                GridBagConstraints.NONE, new Insets(15,15,15,15), 0, 0) );
+//        ActivePatientPane.add(patientBirthL,new GridBagConstraints(1,0,1,1,0.5,0,GridBagConstraints.CENTER,
+//                GridBagConstraints.NONE, new Insets(15,15,15,15), 0, 0) );
+//        ActivePatientPane.add(patientNameTA,new GridBagConstraints(0,1,1,1,0.5,0,GridBagConstraints.CENTER,
+//                GridBagConstraints.NONE, new Insets(15,15,15,15), 0, 0) );
+//        ActivePatientPane.add(patientBirthTA,new GridBagConstraints(1,1,1,1,0.5,0,GridBagConstraints.CENTER,
+//                GridBagConstraints.NONE, new Insets(15,15,15,15), 0, 0) );
+//        ActivePatientPane.add(appointSP,new GridBagConstraints(0,2,2,3,1,1,GridBagConstraints.NORTHWEST,
+//                GridBagConstraints.HORIZONTAL, new Insets(15,15,15,15), 0, 0) );
+        //block two
+
+//        into PatientGForm Pane
+//        patientGFormPane.setLayout(new GridBagLayout());
+//        patientGFormPane.add(patientGTA, new GridBagConstraints(0,0,5,5,1,1,GridBagConstraints.NORTHWEST,
+//                GridBagConstraints.VERTICAL, new Insets(15,15,15,15), 0, 0));
+
+
+/*********************************END of MA Frame components*****************************/
 
         //Panel properties
         this.frame.setContentPane(this.MAPanel);
@@ -87,4 +149,5 @@ public class MedAssist {
         });
         return Integer.parseInt(tmp.getText());
     }
+
 }
