@@ -91,9 +91,9 @@ public class GUI {
         ActionListener btnHandler = new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                if ((JButton) e.getSource() == cancelB)
+                if ((JButton) e.getSource() == cancelB) {
                     System.exit(0);
-                else if ((JButton) e.getSource() == okB) {
+                } else if ((JButton) e.getSource() == okB) {
                     String login = loginTF.getText();
                     String passw = new String(passwTF.getPassword());
                     checkLogin(login, passw);
@@ -135,10 +135,13 @@ public class GUI {
     }
 
     private void checkLogin(String login, String passw) {
-//        MedOfficer fr = new MedOfficer();
+//        StartPatient fr = new StartPatient(1);
+//        StartMedOfficer fr = new StartMedOfficer(6);
+//          Nurse n = new Nurse(4);
 
         try {
             Auth t = new Auth(login, passw);
+            DB.db.openConnection();
             ResultSet res = DB.db.staff();
             boolean exist = false;
             String psw = null;
@@ -152,50 +155,73 @@ public class GUI {
                     exist = true;
                 }
             }
-            DB.db.close();
-            if (exist)
+            if (exist) {
                 if (t.getPasswHash().equals(psw) && t.getLogin().equals(login)) {
                     startFrame.setVisible(false);
                     res = DB.db.position(position);
                     while (res.next()) {
-                        if (res.getString("posdesc").equalsIgnoreCase("ma"))
+                        if (res.getString("posdesc").equalsIgnoreCase("ma")) {
                             javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
                                 public void run() {
                                     new MedAssist();
                                 }
                             });
-                        else if (res.getString("posdesc").equalsIgnoreCase("ns"))
+                        } else if (res.getString("posdesc").equalsIgnoreCase("ns")) {
                             javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
                                 public void run() {
-                                    new Nurse();
-//                                    new Nurse(id);
+                                    new Nurse(id);
                                 }
                             });
-                        else if (res.getString("posdesc").equalsIgnoreCase("mo"))
+                        } else if (res.getString("posdesc").equalsIgnoreCase("mo")) {
                             javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
                                 public void run() {
-                                    new MedOfficer(id);
+                                    new StartMedOfficer(id);
                                 }
                             });
-                        else if (res.getString("posdesc").equalsIgnoreCase("gp"))
+                        } else if (res.getString("posdesc").equalsIgnoreCase("gp")) {
                             javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
                                 public void run() {
-                                    new Doctor();
+                                    new Doctor(id);
                                 }
                             });
+                        }
                     }
 
-                } else
+                } else {
                     JOptionPane.showMessageDialog(null, "ERROR", "ERROR", JOptionPane.INFORMATION_MESSAGE);
-            else
-                JOptionPane.showMessageDialog(null, "ERROR 2", "ERROR 2", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } else {
 
+                res = DB.db.patient();
+                while (res.next()) {
+                    if (login.equals(res.getString("login"))) {
+                        psw = res.getString("password");
+                        id = res.getInt("id");
+                        exist = true;
+                    }
+                }
+                if (exist) {
+                    if (t.getPasswHash().equals(psw) && t.getLogin().equals(login)) {
+                        startFrame.setVisible(false);
+                        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+
+                            public void run() {
+                                new StartPatient(id);
+                            }
+                        });
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "USER not found", "ERROR", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+            DB.db.close();
         } catch (Exception ex) {
             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
     }
 }

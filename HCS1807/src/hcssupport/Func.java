@@ -5,12 +5,14 @@
 package hcssupport;
 
 import hcsmain.*;
-import hcsmain.MedOfficer;
+import hcsmain.StartMedOfficer;
 import MedOfficerPanes.Staffs;
+import hcsmain.DrugInfo;
 import hcsmain.StaffInfo;
 import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,6 +84,7 @@ public class Func<T> {
     }
 
     public void fillStaff(Vector<T> staff, int id) {
+        DB.db.openConnection();
         ResultSet rs = DB.db.staff();
         try {
             while (rs.next()) {
@@ -96,11 +99,13 @@ public class Func<T> {
             }
             DB.db.close();
         } catch (SQLException ex) {
-            Logger.getLogger(MedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(StartMedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
     }
 
     public void fillStaff(Vector<T> staff) {
+        DB.db.openConnection();
         ResultSet rs = DB.db.staff();
         try {
             while (rs.next()) {
@@ -121,11 +126,124 @@ public class Func<T> {
             }
             DB.db.close();
         } catch (SQLException ex) {
-            Logger.getLogger(MedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(StartMedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
     }
 
+    public void fillPatient(PatientInfo patient, int patientId) {
+        try {
+            DB.db.openConnection();
+            ResultSet rs = DB.db.patient(patientId);
+            while (rs.next()) {
+                patient.setId(patientId);
+                patient.setAddress(rs.getString("address"));
+                patient.setAnam(rs.getString("anamnesis"));
+                patient.setBdate(rs.getDate("bdate"));
+                patient.setDiagn(rs.getString("diagnosis"));
+                patient.setEmail(rs.getString("email"));
+                patient.setFname(rs.getString("fname"));
+                patient.setInsurrance(rs.getString("insurrance"));
+                patient.setLname(rs.getString("lname"));
+                patient.setMedcard(rs.getString("medcard"));
+                patient.setPhone(rs.getString("phone"));
+                patient.setSsn(rs.getString("ssn"));
+                patient.setZip(rs.getString("zip"));
+/////////////
+                //reading general history from db and replacing delimiter
+//                System.out.println(rs.getString("gmedhistory"));
+                String tempgh = rs.getString("gmedhistory");
+                if(tempgh != null) {
+                    tempgh.trim();
+                    tempgh = tempgh.replaceAll("[|]", "<br />");
+                    patient.setGmedhistory(tempgh);
+                }
+                //reading illness history from db and replacing delimiter
+                String tempil = rs.getString("illnesshistory");
+                if(tempil != null) {
+                    tempil.trim();
+                    tempil = tempil.replaceAll("[|]", "<br />");
+                    patient.setIllnesshistory(tempil);
+                }
+                 //reading medical specific history from db and replacing delimiter
+                String tempsp = rs.getString("medspechistory");
+                if(tempsp != null) {
+                    tempsp = tempsp.trim();
+                    tempsp = tempsp.replaceAll("[|]", "<br />");
+                    patient.setMedspechistory(tempsp);
+                }
+////////// not all patients have prescription!!!!!!!!! 
+//                
+//                ResultSet res = DB.db.prescription();
+//                int currPrescr = -1;
+//
+//                while (res.next()) {
+//                    if (res.getInt("patientid") == patientId && res.getInt("id") > currPrescr) {
+//                        currPrescr = res.getInt("id");
+//                    }
+//                }
+//                res = DB.db.prescription(currPrescr);
+//                String[] drugId = null;
+//                Vector<String> drug = new Vector<String>();
+//                while (res.next()) {
+//                    String t = res.getString("prescription");
+//                    t.trim();
+////                    t = t.substring(1, t.length()-1);
+//                    t = t.replaceAll("[\n]", "<br />");
+//                    patient.setPrescriptions(t);
+//                    String tmp = res.getString("drugid");
+//                    tmp.trim();
+//                    tmp = tmp.substring(1, tmp.length() - 1);
+//                    drugId = tmp.split("[|]");
+//                }
+//               
+//                for (int i = 0; i < drugId.length; i++) {
+//                    res = DB.db.drugs(Integer.parseInt(drugId[i]));
+//                    while (res.next()) {
+//                        drug.add("<b>" + res.getString("name") + " </b>/ " + res.getString("dose"));
+//                    }
+//                
+//             
+//                patient.setDrugs(drug);  
+//                }
+//                DB.db.close();
+                
+                
+                
+                
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
+        }
+    }
+
+    public void setHospitalsList(DefaultListModel listModel) {
+        DB.db.openConnection();
+        try {
+            ResultSet rs;
+            rs = DB.db.hospital();
+            Vector<StringBuffer> t = new Vector();
+            listModel.removeAllElements();
+            while (rs.next()) {
+                StringBuffer tmp = new StringBuffer();
+                tmp.append(rs.getString("name"));
+                t.add(tmp);
+            }
+            for (int i = 0; i < t.size(); i++) {
+                listModel.add(i, t.get(i).toString());
+            }
+            DB.db.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
+        }
+
+
+    }
+
     public void setElementList(DefaultListModel listModel, boolean positionTable, boolean qualificationTable) {
+        DB.db.openConnection();
         ResultSet rs;
         String field;
         if (positionTable) {
@@ -146,8 +264,10 @@ public class Func<T> {
             for (int i = 0; i < t.size(); i++) {
                 listModel.add(i, t.get(i).toString());
             }
+            DB.db.close();
         } catch (SQLException ex) {
             Logger.getLogger(Staffs.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
     }
 
@@ -167,6 +287,7 @@ public class Func<T> {
     }
 
     public void staffPersonalInfo(Vector<StaffInfo> staff, String toMatch, JTextField... staffTF) {
+        DB.db.openConnection();
         try {
             int ind = -1;
             String lName = toMatch.substring(0, toMatch.indexOf(","));
@@ -199,11 +320,13 @@ public class Func<T> {
             DB.db.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(MedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(StartMedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
     }
 
     public String patientForDoctor(Vector<StaffInfo> staff, String toMatch) {
+        DB.db.openConnection();
         StringBuffer info = new StringBuffer();
         try {
             info.append("<table>");
@@ -217,7 +340,7 @@ public class Func<T> {
             }
             ResultSet rs = DB.db.staff(staff.get(ind).getLname(), staff.get(ind).getbDate());
             while (rs.next()) {
-                ResultSet rsh = DB.db.schedule(rs.getInt("id"));
+                ResultSet rsh = DB.db.schedule(rs.getInt("id"), null);
                 while (rsh.next()) {
                     ResultSet rp = DB.db.patient(rsh.getInt("patientid"));
                     while (rp.next()) {
@@ -248,18 +371,19 @@ public class Func<T> {
 
                     }
                 }
-
             }
             info.append("</table>");
             DB.db.close();
         } catch (SQLException ex) {
             Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
         return info.toString();
     }
 
     /*Added 04.07*/
     public void staffListHosp(Vector<StaffInfo> staff, String toMatch, DefaultListModel list) {
+        DB.db.openConnection();
         try {
             list.removeAllElements();
             Vector<StringBuffer> t = new Vector();
@@ -298,6 +422,7 @@ public class Func<T> {
             DB.db.close();
         } catch (SQLException ex) {
             Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
 
     }
@@ -335,12 +460,11 @@ public class Func<T> {
         for (int i = 0; i < t.size(); i++) {
             list.add(i, t.get(i).toString());
         }
-
     }
 
     // check for using !!!
     public String fillStaffInfo(String staffPos) {
-
+        DB.db.openConnection();
         ResultSet rs = DB.db.staff();
         StringBuffer info = new StringBuffer();
         try {
@@ -385,19 +509,144 @@ public class Func<T> {
             info.append("</table>");
             DB.db.close();
         } catch (SQLException ex) {
-            Logger.getLogger(MedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(StartMedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
         return info.toString();
     }
 
+    // added 21.07
+    public void addStaffInfo(Vector<StaffInfo> staff, JTextField[] staffTF, JList positionList, JList qualificationList,
+            String hospitalList, JTable table) {
+        DB.db.openConnection();
+        try {
+            int posid = -1;
+            int qualid = -1;
+            int hospId = -1;
+            String[] tmp = new String[staffTF.length];
+            for (int i = 0; i < staffTF.length; i++) {
+                tmp[i] = staffTF[i].getText();
+            }
+            if (positionList == null || qualificationList == null) {
+                throw new Exception();
+            }
+
+            // make login and password
+            String login = JOptionPane.showInputDialog("Enter desired login");
+            String password = null;
+            JPasswordField passwordField = new JPasswordField();
+            passwordField.setEchoChar('*');
+            Object[] obj = {"Please enter the password:\n\n", passwordField};
+            Object stringArray[] = {"OK", "Cancel"};
+            if (JOptionPane.showOptionDialog(null, obj, "Desired password",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, stringArray, obj) == JOptionPane.YES_OPTION) {
+                password = new String(passwordField.getPassword());
+            }
+            // login and password done
+
+            ResultSet rs = DB.db.position(positionList.getSelectedValue().toString());
+            while (rs.next()) {
+                posid = rs.getInt("id");
+            }
+            rs = DB.db.qualification(qualificationList.getSelectedValue().toString());
+            while (rs.next()) {
+                qualid = rs.getInt("id");
+            }
+
+            Auth t = new Auth(login, password);
+            DB.db.addStaff(tmp, qualid, posid, t.getLogin(), t.getPasswHash());
+            DB.db.close();
+            staff.removeAllElements();
+            this.fillStaff((Vector<T>) staff);
+            rs = (ResultSet) DB.db.hospital(hospitalList);
+            while (rs.next()) {
+                hospId = rs.getInt("id");
+            }
+            for (int i = 0; i < 7; i++) {
+                DB.db.editStaffHospitalSchedual(staff.lastElement().getId(), hospId, table.getValueAt(i, 0),
+                        table.getValueAt(i, 1), table.getValueAt(i, 2));
+            }
+            DB.db.close();
+        } catch (Exception ex) {
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
+        }
+
+    }
+
+    // added 18.07
+    public void editMainStaffInfo(Vector<StaffInfo> staff, JTextField[] staffTF, JList positionList, JList qualificationList) {
+        DB.db.openConnection();
+        try {
+            int id = -1;
+            int posId = -1;
+            int qualId = -1;
+            for (int i = 0; i < staff.size(); i++) {
+                if (staff.get(i).getLname().equals(staffTF[1].getText()) && staff.get(i).getbDate().toString().equals(staffTF[2].getText())) {
+                    id = staff.get(i).getId();
+                }
+            }
+            if (positionList == null || qualificationList == null) {
+                throw new Exception();
+            }
+            ResultSet rs = DB.db.position(positionList.getSelectedValue().toString());
+            while (rs.next()) {
+                posId = rs.getInt("id");
+            }
+            rs = DB.db.qualification(qualificationList.getSelectedValue().toString());
+            while (rs.next()) {
+                qualId = rs.getInt("id");
+            }
+            DB.db.staffUpdate(staffTF[4].getText(), staffTF[5].getText(), staffTF[6].getText(), staffTF[9].getText(), posId, qualId, id);
+
+
+            DB.db.close();
+        } catch (Exception ex) {
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
+        }
+
+    }
+
+    // added 18.07
+    public void editSchedualStaffInfo(Vector<StaffInfo> staff, JTextField[] staffTF, JTable table, String hospitalList) {
+        DB.db.openConnection();
+        try {
+            int id = -1;
+            int hospId = -1;
+            for (int i = 0; i < staff.size(); i++) {
+                if (staff.get(i).getLname().equals(staffTF[1].getText()) && staff.get(i).getbDate().toString().equals(staffTF[2].getText())) {
+                    id = staff.get(i).getId();
+                }
+            }
+            ResultSet rs = (ResultSet) DB.db.hospital(hospitalList);
+            while (rs.next()) {
+                hospId = rs.getInt("id");
+            }
+
+            for (int i = 0; i < 7; i++) {
+                //System.out.println("hospID" + hospId);
+                DB.db.editStaffHospitalSchedual(id, hospId, table.getValueAt(i, 0),
+                        table.getValueAt(i, 1), table.getValueAt(i, 2));
+            }
+            DB.db.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
+        }
+
+    }
+
+
     /* Added 08.07.2014*/
-    public void checkSchedule(Vector<StaffInfo> staff, String toMatch, JTable pane, JList item) {
+    public void checkStaffSchedule(Vector<StaffInfo> staff, String toMatch, JTable tableElement, JList item) {
+        DB.db.openConnection();
         int ind = -1;
         int hospId = -1;
         int staffId = -1;
         for (int i = 0; i < 7; i++) {
             for (int j = 1; j < 3; j++) {
-                pane.setValueAt("", i, j);
+                tableElement.setValueAt("", i, j);
             }
         }
         try {
@@ -429,43 +678,44 @@ public class Func<T> {
             while (res.next()) {
                 String tmp = res.getString("workday");
                 if (tmp.equalsIgnoreCase("Sun")) {
-                    pane.setValueAt(res.getString("workhouram"), 0, 1);
-                    pane.setValueAt(res.getString("workhourpm"), 0, 2);
+                    tableElement.setValueAt(res.getString("workhouram"), 0, 1);
+                    tableElement.setValueAt(res.getString("workhourpm"), 0, 2);
                 }
                 if (tmp.equalsIgnoreCase("Mon")) {
-                    pane.setValueAt(res.getString("workhouram"), 1, 1);
-                    pane.setValueAt(res.getString("workhourpm"), 1, 2);
+                    tableElement.setValueAt(res.getString("workhouram"), 1, 1);
+                    tableElement.setValueAt(res.getString("workhourpm"), 1, 2);
                 }
                 if (tmp.equalsIgnoreCase("Tue")) {
-                    pane.setValueAt(res.getString("workhouram"), 2, 1);
-                    pane.setValueAt(res.getString("workhourpm"), 2, 2);
+                    tableElement.setValueAt(res.getString("workhouram"), 2, 1);
+                    tableElement.setValueAt(res.getString("workhourpm"), 2, 2);
                 }
                 if (tmp.equalsIgnoreCase("Wed")) {
-                    pane.setValueAt(res.getString("workhouram"), 3, 1);
-                    pane.setValueAt(res.getString("workhourpm"), 3, 2);
+                    tableElement.setValueAt(res.getString("workhouram"), 3, 1);
+                    tableElement.setValueAt(res.getString("workhourpm"), 3, 2);
                 }
                 if (tmp.equalsIgnoreCase("Thu")) {
-                    pane.setValueAt(res.getString("workhouram"), 4, 1);
-                    pane.setValueAt(res.getString("workhourpm"), 4, 2);
+                    tableElement.setValueAt(res.getString("workhouram"), 4, 1);
+                    tableElement.setValueAt(res.getString("workhourpm"), 4, 2);
                 }
                 if (tmp.equalsIgnoreCase("Fri")) {
-                    pane.setValueAt(res.getString("workhouram"), 5, 1);
-                    pane.setValueAt(res.getString("workhourpm"), 5, 2);
+                    tableElement.setValueAt(res.getString("workhouram"), 5, 1);
+                    tableElement.setValueAt(res.getString("workhourpm"), 5, 2);
                 }
                 if (tmp.equalsIgnoreCase("Sat")) {
-                    pane.setValueAt(res.getString("workhouram"), 6, 1);
-                    pane.setValueAt(res.getString("workhourpm"), 6, 2);
+                    tableElement.setValueAt(res.getString("workhouram"), 6, 1);
+                    tableElement.setValueAt(res.getString("workhourpm"), 6, 2);
                 }
             }
             DB.db.close();
         } catch (SQLException ex) {
             Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
     }
 
     // make it later
     public Vector<T> findChoosenStaff(String staffPos, String name) {
-
+        DB.db.openConnection();
         Vector<T> st = new Vector();
         // ,\make it through calling the db
         int pos;
@@ -506,7 +756,8 @@ public class Func<T> {
             }
             DB.db.close();
         } catch (SQLException ex) {
-            Logger.getLogger(MedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(StartMedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
 
         return st;
@@ -514,6 +765,7 @@ public class Func<T> {
 
     //added 09.07 by Nadine
     public void fillSPatient(Vector<T> patient) {
+        DB.db.openConnection();
         ResultSet rs = DB.db.patient();
         try {
             while (rs.next()) {
@@ -531,56 +783,20 @@ public class Func<T> {
                 p.setSsn(rs.getString("ssn"));
                 p.setAnam(rs.getString("anamnesis"));
                 p.setDiagn(rs.getString("diagnosis"));
+                p.setGmedhistory(rs.getString("gmedhistory"));
+                p.setIllnesshistory(rs.getString("illnesshistory"));
+                p.setMedspechistory(rs.getString("medspechistory"));
 //                if (rs.getInt("posid") == id)
                 patient.add((T) p);
             }
             DB.db.close();
         } catch (SQLException ex) {
-            Logger.getLogger(MedOfficer.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    //added by Nadine 18.07
-       public void fillDrugs(Vector<T> drug) {
-        ResultSet rs = DB.db.drugs();
-        try {
-            while (rs.next()) {
-                DrugInfo p = new DrugInfo();
-                p.setId(rs.getInt("id"));
-                p.setName(rs.getString("name"));
-                p.setDose(rs.getString("dose"));
-                p.setPrice(rs.getDouble("price"));
-                p.setAvlb(rs.getString("avlb"));
-                p.setRemburs(rs.getString("remburs"));
-                p.setStoreid(rs.getInt("drugstoreid"));
-                drug.add((T) p);
-            }
+            Logger.getLogger(StartMedOfficer.class.getName()).log(Level.SEVERE, null, ex);
             DB.db.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(MedOfficer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-     //added by Nadine 18.07
-   public void drugsList(Vector<DrugInfo> drugs, JTextField tf, DefaultListModel list) {
-        list.removeAllElements();
-        Vector<StringBuffer> t = new Vector();
-        for (int i = 0; i < drugs.size(); i++) {
-            if (drugs.get(i).getName().toLowerCase().startsWith(
-                    tf.getText().toLowerCase())) {
-                // preparing information for list
-                StringBuffer tmp = new StringBuffer();
-                tmp.append(drugs.get(i).getName() + ", (");
-                tmp.append(drugs.get(i).getDose().charAt(0) + ").");
-                t.add(tmp);
-            }
-        }
-        for (int i = 0; i < t.size(); i++) {
-            list.add(i, t.get(i).toString());
-        }
-
-    }
-
     //added 09.07 by Nadine
+
     public void patientList(Vector<PatientInfo> patient, JTextField tf, DefaultListModel list) {
         list.removeAllElements();
         Vector<StringBuffer> t = new Vector();
@@ -598,42 +814,179 @@ public class Func<T> {
         for (int i = 0; i < t.size(); i++) {
             list.add(i, t.get(i).toString());
         }
-
+        DB.db.close();
     }
-    //added 22.07 by Nadine
-    public int drugInfo(Vector<DrugInfo> drugs, String toMatch, JTextField tf, JTextArea ta){
-        int drugId = 0;
-        String drugname = "";
-        try{
+
+    //added by Nadine 18.07
+    public void fillDrugs(Vector<T> drug) {
+        DB.db.openConnection();
+        ResultSet rs = DB.db.drugs();
+        try {
+            while (rs.next()) {
+                DrugInfo p = new DrugInfo();
+                p.setId(rs.getInt("id"));
+                p.setName(rs.getString("name"));
+                p.setDose(rs.getString("dose"));
+                p.setPrice(rs.getDouble("price"));
+                p.setAvlb(rs.getString("avlb"));
+                p.setRemburs(rs.getString("remburs"));
+                p.setStoreid(rs.getInt("drugstoreid"));
+                drug.add((T) p);
+            }
+            DB.db.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
+        }
+    }
+//changed by Nadine 25 july , text Pane added as a parameter
+    public void patientPersonalInfo(PatientInfo patient, JTextField[] tfPatient, JTextPane tp, JTextPane[] patientTP) {
+        StringBuffer info = new StringBuffer();
+
+        if(tp == null && patientTP == null){
+        tfPatient[2].setText(patient.getBdate().toString());
+        tfPatient[3].setText(patient.getSsn().substring(0, 3) + "-" + patient.getSsn().substring(3, 6) + "-" + patient.getSsn().substring(6, 9));
+        tfPatient[4].setText(patient.getEmail());
+        tfPatient[5].setText(patient.getAddress());
+        tfPatient[6].setText(patient.getZip());
+        tfPatient[7].setText(patient.getPhone());
+        tfPatient[8].setText(patient.getMedcard());
+        tfPatient[9].setText(patient.getInsurrance());
+        }
+
+        if(tfPatient == null && patientTP == null){
+            info.append("<table>");
+              info.append("<tr><td>Patient: <b>");
+                info.append(patient.getLname());
+                info.append(", " + patient.getFname());
+                info.append("</b></td></tr>");
+                info.append("<tr><td>Phone: <b>");
+                info.append(patient.getPhone() + "</b></td></tr>");
+                info.append("<tr><td>Address: <b>");
+                info.append(patient.getAddress() + ", " + patient.getZip() + "</b></td></tr>");
+                info.append("<tr><td>Med card: <b>");
+                info.append(patient.getMedcard() + "</b></td></tr>");
+                info.append("<tr><td>Insurance: <b>");
+                info.append(patient.getInsurrance() + "</b></td></tr>");
+                info.append("<tr><td>SSN: <b>");
+                info.append(patient.getSsn() + "</b></td></tr>");
+                info.append("<tr><td>E-mail: <b>");
+                info.append(patient.getEmail() + "</b></td></tr>");
+                info.append("</table>");
+           tp.setText(info.toString());
+        }
+
+        if(tfPatient == null && tp == null){
+
+            if(patient.getGmedhistory() != null){
+                patientTP[0].setText("<b><span style='font-size: 16pt'>"
+                                    +patient.getGmedhistory()+
+                                    "</span></b><br /><br />");
+            }
+            if(patient.getIllnesshistory() != null){
+                patientTP[1].setText("<b><span style='font-size: 16pt'>"
+                                    +patient.getIllnesshistory()+
+                                    "</span></b><br /><br />");
+            }
+            if(patient.getMedspechistory() != null){
+                patientTP[2].setText("<b><span style='font-size: 16pt'>"
+                                    +patient.getMedspechistory()+
+                                    "</span></b><br /><br />");
+            }
+        }
+    }
+    public void patientHisoryInfo(Vector<PatientInfo> patient, String toMatch, JTextPane[] patientTP){
+
+               String ghstr, ilstr, spstr;
+                int id = 0;
+                StringBuffer infogh = new StringBuffer();
+                StringBuffer infoil = new StringBuffer();
+                StringBuffer infosp = new StringBuffer();
+
             int ind = -1;
-            String drug = toMatch.substring(0, toMatch.indexOf(","));
-            for(int i = 0; i< drugs.size(); i++){
-                if(drugs.get(i).getName().equalsIgnoreCase(drug)){
+            String lName = toMatch.substring(0, toMatch.indexOf(","));
+            String dBirth = toMatch.substring(toMatch.indexOf("(") + 1, toMatch.indexOf(")"));
+            for (int i = 0; i < patient.size(); i++) {
+                if (patient.get(i).getLname().equalsIgnoreCase(lName) && patient.get(i).getBdate().toString().equalsIgnoreCase(dBirth)) {
                     ind = i;
                 }
             }
-            ResultSet res = DB.db.drugsbyName(drugs.get(ind).getName());
-            
-            if(ta != null){
-            while(res.next()){
-            drugId = res.getInt("id");
-            
-            tf.setText(res.getString("name"));
-            drugname = res.getString("name")+" "+res.getString("dose");
-            ta.append(drugname+"\n");
-            }
-            }
-            DB.db.close();
 
-        } catch (SQLException ex) {
-            Logger.getLogger(MedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            for (int i = 0; i< patient.size(); i++){
+                
+                ghstr = patient.get(i).getGmedhistory();
+                
+                if(ghstr != null) {
+                String[] ghparts = ghstr.split("[|]");
+                
+                        for( i=0; i< ghparts.length; i++){
+                            System.out.println("1111"+ghparts[i]);
+                                if ( i%2 != 0){
+                                    ghstr =  "<span style='font-size: 16pt'>"
+                                                +ghparts[i]+
+                                                "</span><br /><br />";
+                                    infogh.append(ghstr);
+                                }
+                                else if ( i%2 == 0){
+                                    ghstr =  "<b><span style='font-size: 16pt'>"
+                                                +ghparts[i]+
+                                                "</span></b><br /><br />";
+                                    infogh.append(ghstr);
+                                }
+                            patientTP[0].setText(infogh.toString());
+                            }     
+                        }
+                
+                ilstr = patient.get(i).getIllnesshistory();
+                
+                if(ilstr != null) {
+                String[] ilparts = ilstr.split("[|]");
+                
+                        for( i=0; i< ilparts.length; i++){
+                                if ( i%2 != 0){
+                                    ilstr =  "<span style='font-size: 16pt'>"
+                                                +ilparts[i]+
+                                                "</span><br /><br />";
+                                    infoil.append(ghstr);
+                                }
+                                else if ( i%2 == 0){
+                                    ilstr =  "<b><span style='font-size: 16pt'>"
+                                                +ilparts[i]+
+                                                "</span></b><br /><br />";
+                                    infoil.append(ilstr);
+                                }
+                            }
+                                        patientTP[1].setText(infoil.toString());
+                        }
 
-        }
+                spstr = patient.get(i).getMedspechistory();
+                
+                if(spstr != null) {
+                String[] spparts = spstr.split("[|]");
+                
+                        for( i=0; i< spparts.length; i++){
+                                if ( i%2 != 0){
+                                    spstr =  "<span style='font-size: 16pt'>"
+                                                +spparts[i]+
+                                                "</span><br /><br />";
+                                    infosp.append(ghstr);
+                                }
+                                else if ( i%2 == 0){
+                                    spstr =  "<b><span style='font-size: 16pt'>"
+                                                +spparts[i]+
+                                                "</span></b><br /><br />";
+                                    infosp.append(spstr);
+                                }
+                            }
 
-        return drugId;
+                                         patientTP[2].setText(infosp.toString());
+                }  
+            }                            
     }
+    
     //added 10/07 by Nadine
     public int patientInfo(Vector<PatientInfo> patient, String toMatch, JTextField[] tf, JTextPane tp, JTextPane[] patientTP) {
+        DB.db.openConnection();
         int id = 0;
         StringBuffer info = new StringBuffer();
 
@@ -674,40 +1027,95 @@ public class Func<T> {
                 tf[0].setText(res.getString("lname") + " " + res.getString("fname"));
                 tf[1].setText(res.getDate("bdate").toString());
                 if (tp == null) {
-                    if(patientTP  != null){
-                    patientTP[2].setText(res.getString("anamnesis"));
-                    patientTP[3].setText(res.getString("diagnosis"));
+                    if (patientTP != null) {
+                        patientTP[2].setText(res.getString("anamnesis"));
+                        patientTP[3].setText(res.getString("diagnosis"));
 
-                    ResultSet rres = DB.db.prescription(id);
-                    while (rres.next()) {
-                        patientTP[1].setText(rres.getString("prescription"));
+                        ResultSet rres = DB.db.prescription(id);
+                        while (rres.next()) {
+                            patientTP[1].setText(rres.getString("prescription"));
+                        }
                     }
-                }
                 }
             }
 
             info.append("</table>");
             if (tp == null) {
-                if(patientTP != null){
-                patientTP[0].setText(info.toString());
+                if (patientTP != null) {
+                    patientTP[0].setText(info.toString());
 
                 }
             } else {
                 tp.setText(info.toString());
- 
+
             }
             DB.db.close();
-           
+
         } catch (SQLException ex) {
-            Logger.getLogger(MedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
         return id;
     }
 
+    //added by Nadine 18.07
+    public void drugsList(Vector<DrugInfo> drugs, JTextField tf, DefaultListModel list) {
+        list.removeAllElements();
+        Vector<StringBuffer> t = new Vector();
+        for (int i = 0; i < drugs.size(); i++) {
+            if (drugs.get(i).getName().toLowerCase().startsWith(
+                    tf.getText().toLowerCase())) {
+                // preparing information for list
+                StringBuffer tmp = new StringBuffer();
+                tmp.append(drugs.get(i).getName() + ", (");
+                tmp.append(drugs.get(i).getDose().charAt(0) + ").");
+                t.add(tmp);
+            }
+        }
+        for (int i = 0; i < t.size(); i++) {
+            list.add(i, t.get(i).toString());
+        }
+
+    }
+
+    //added 22.07 by Nadine
+    public int drugInfo(Vector<DrugInfo> drugs, String toMatch, JTextField tf, JTextArea ta) {
+        DB.db.openConnection();
+        int drugId = 0;
+        String drugname = "";
+        try {
+            int ind = -1;
+            String drug = toMatch.substring(0, toMatch.indexOf(","));
+            for (int i = 0; i < drugs.size(); i++) {
+                if (drugs.get(i).getName().equalsIgnoreCase(drug)) {
+                    ind = i;
+                }
+            }
+            ResultSet res = DB.db.drugsbyName(drugs.get(ind).getName());
+
+            if (ta != null) {
+                while (res.next()) {
+                    drugId = res.getInt("id");
+
+                    tf.setText(res.getString("name"));
+                    drugname = res.getString("name") + " " + res.getString("dose");
+                    ta.append(drugname + "\n");
+                }
+            }
+            DB.db.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
+        }
+
+        return drugId;
+    }
+
     //added 17/07 by Valerii
     public int patientInfoMA(Vector<PatientInfo> patient, String toMatch, JTextField[] tf, JTextPane... patientTP) {
+        DB.db.openConnection();
         int id = 0;
-
         try {
             int ind = -1;
             String lName = toMatch.substring(0, toMatch.indexOf(","));
@@ -737,7 +1145,7 @@ public class Func<T> {
                 tf[9].setText(res.getString("ssn"));
 
                 //retrieving schedule id
-                ResultSet rs = DB.db.scheduleM(res.getInt("id"));
+                ResultSet rs = DB.db.schedule(null, res.getInt("id"));
 
                 //retrieving tests
                 while (rs.next()) {
@@ -775,8 +1183,118 @@ public class Func<T> {
             DB.db.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(MedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(StartMedOfficer.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
         }
         return id;
     }//End patientInfoMA
+
+    public void checkPatientSchedual(JTable table, PatientInfo patient) {
+        DB.db.openConnection();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm:ss a");
+        try {
+            int id = patient.getId();
+            ResultSet res = DB.db.schedule(null, id);
+            while (res.next()) {
+                String staff = null;
+                Calendar date = Calendar.getInstance();
+                Calendar appDate = Calendar.getInstance();
+                appDate.setTime(res.getTimestamp("sdate"));
+                ResultSet rs = DB.db.staff(res.getInt("staffid"));
+                while (rs.next()) {
+                    staff = rs.getString("lname");
+                    staff += ", " + rs.getString("fname");
+                }
+                if (appDate.after(date)) {
+                    String tmp = appDate.getTime().toString();
+                    for (int i = 0; i < 7; i++) {
+                        if (table.getValueAt(i, 0).toString().contains(tmp.substring(0, 2))) {
+                            String t = table.getValueAt(i, 1).toString();
+                            String tt = table.getValueAt(i, 2).toString();
+                            String td = table.getValueAt(i, 3).toString();
+                            if (t.isEmpty()) {
+                                t = dateFormat.format(appDate.getTime());
+                                tt = timeFormat.format(appDate.getTime());
+                                td = staff;
+                            } else {
+                                t = t + " || " + dateFormat.format(appDate.getTime());
+                                tt = tt + " || " + timeFormat.format(appDate.getTime());
+                                td = td + " || " + staff;
+                            }
+                            table.setValueAt(t, i, 1);
+                            table.setValueAt(tt, i, 2);
+                            table.setValueAt(td, i, 3);
+                        }
+                    }
+                }
+            }
+            DB.db.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
+        }
+
+    }
+
+    //added by Nadine on 24 July
+      public void fillTests(Vector<T> test, int ptid, int staffid) {
+        DB.db.openConnection();
+        ResultSet rs = DB.db.testIdFromSchedule(ptid, staffid);
+        try {
+            while (rs.next()) {
+            int id = rs.getInt("testid");
+                ResultSet res = DB.db.tests(id);
+                    while(res.next()){
+                       TestInfo t = new TestInfo();
+                       t.setRes(res.getString("res"));
+                       t.setArdate(res.getDate("ardate"));
+                       t.setDepdate(res.getDate("depdate"));
+                       t.setLabid(res.getInt("labid"));
+                       test.add((T) t);
+                    }
+            }
+            DB.db.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
+        }
+    }
+       //added by Nadine on 24 July
+      public void fillLab(LabInfo lab, int id) {
+        DB.db.openConnection();
+        ResultSet rs = DB.db.laboratory(id);
+        try {
+            while (rs.next()) {
+                 lab.setLabname(rs.getString("labname"));
+                 lab.setLabaddress(rs.getString("labaddress"));
+                 lab.setLabphone(rs.getString("labphone"));
+            }
+            DB.db.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
+            DB.db.close();
+        }
+    }
+
+//added by Nadine on 24 July
+      public void testList(Vector<TestInfo> test, DefaultListModel list) {
+        list.removeAllElements();
+        Vector<LabInfo> lab = new Vector();
+        Vector<StringBuffer> t = new Vector();
+        for (int i = 0; i < test.size(); i++) {
+            LabInfo l = new LabInfo();
+            fillLab(l, test.get(i).getLabid());
+            lab.add(l);    
+            // preparing information for list               
+                    StringBuffer tmp = new StringBuffer();
+                    tmp.append(test.get(i).getRes() + ", (");
+                    tmp.append(lab.get(i).getLabname() + ")");
+                    t.add(tmp);
+
+        }
+        for (int i = 0; i < t.size(); i++) {
+            list.add(i, t.get(i).toString());
+        }
+    }
 }

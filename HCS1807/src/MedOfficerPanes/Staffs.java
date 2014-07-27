@@ -17,6 +17,10 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -31,12 +35,14 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
     private JList hospStaffList;
     private JList staffList;
     private JList positionList;
+    private JList hospitalsList;
     private JList qualificationList;
     private Func function;
     private JTextField findStaffTF;
     private DefaultListModel listModel;
     private DefaultListModel listModelHosp;
     private DefaultListModel listPosition;
+    private DefaultListModel listhospitals;
     private DefaultListModel listQual;
     private Vector<StaffInfo> staff;
     private JTabbedPane MOPanel;
@@ -44,10 +50,13 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
     private JButton btnEditStaff;
     private String[] labels;
     private JScrollPane staffHospSP;
+    private JScrollPane spHospitals;
     private JScrollPane spPositionList;
     private JScrollPane spQualificationList;
+    private JScrollPane hlistSP;
     private JTable table;
     private JPanel staffPane;
+    private String tmpValueList;
 
     public Staffs(JTabbedPane Panel) {
         this.MOPanel = Panel;
@@ -55,8 +64,9 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
     }
 
     private void init() {
+
         Object[] tabHead = {"Day of Week", "AM", "PM"};
-        Object[][] tabRows = {  
+        Object[][] tabRows = {
             {"Sunday", "", ""},
             {"Monday", "", ""},
             {"Tuesday", "", ""},
@@ -65,10 +75,12 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
             {"Friday", "", ""},
             {"Saturday", "", ""}
         };
+
         listModel = new DefaultListModel();
         listModelHosp = new DefaultListModel();
         listPosition = new DefaultListModel();
         listQual = new DefaultListModel();
+        this.listhospitals = new DefaultListModel();
         this.tpPatiens = new JTextPane();
         this.staffinfoTP = new JTextPane();
         this.findStaffTF = new JTextField(25);
@@ -76,6 +88,7 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
         this.hospStaffList = new JList(this.listModelHosp);
         this.positionList = new JList(this.listPosition);
         this.qualificationList = new JList(this.listQual);
+        this.hospitalsList = new JList(this.listhospitals);
         this.function = new Func();
         this.staff = new Vector();
         this.function.fillStaff(staff);
@@ -93,7 +106,7 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
         JScrollPane patientsSP = new JScrollPane(tpPatiens);
         JScrollPane staffinfoSP = new JScrollPane(staffinfoTP);
         StringBuffer loggedUser = new StringBuffer();
-        JTextPane lblLoggedStaff = new JTextPane();
+        JTextPane tpLoggedStaff = new JTextPane();
 
         this.spQualificationList = new JScrollPane(this.qualificationList);
         this.qualificationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -118,10 +131,10 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
 
             }
         }
-        lblLoggedStaff.setContentType("text/html");
-        lblLoggedStaff.setText(loggedUser.toString());
-        this.function.setOpacity(lblLoggedStaff);
-        lblLoggedStaff.setEditable(false);
+        tpLoggedStaff.setContentType("text/html");
+        tpLoggedStaff.setText(loggedUser.toString());
+        this.function.setOpacity(tpLoggedStaff);
+        tpLoggedStaff.setEditable(false);
 
 
         this.labels = lab;
@@ -134,6 +147,10 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
         hospStaffList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         hospStaffList.setSelectedIndex(0);
         hospStaffList.setVisibleRowCount(8);
+
+        this.hospitalsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.hospitalsList.setSelectedIndex(0);
+        this.hospitalsList.setVisibleRowCount(3);
 
         this.positionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.positionList.setSelectedIndex(0);
@@ -172,12 +189,15 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
         this.spPositionList = new JScrollPane(this.positionList);
         this.function.setOpacity(this.spPositionList);
 
-
+        spHospitals = new JScrollPane(this.hospitalsList);
+        this.function.setOpacity(spHospitals);
+        
         // set title for list
         this.function.makeElementWithBorder(spQualificationList, "Qualification", Color.RED, true);
         this.function.makeElementWithBorder(staffList, "Staff", null, false);
         this.function.makeElementWithBorder(hospStaffList, "Hospitals", null, false);
         this.function.makeElementWithBorder(spPositionList, "Position", Color.RED, true);
+        this.function.makeElementWithBorder(this.spHospitals, "Hospitals", Color.RED, true);
         this.function.makeElementWithBorder(staffHospSP, "Schedule", null, false);
 
  
@@ -193,15 +213,17 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
         JScrollPane dlistSP = new JScrollPane(staffList);
         this.function.setOpacity(dlistSP);
 
-        JScrollPane hlistSP = new JScrollPane(hospStaffList);
+        hlistSP = new JScrollPane(hospStaffList);
         this.function.setOpacity(hlistSP);
+
+
 
 
         
         // building pane
         this.staffPane.add(timeTP, new GridBagConstraints(0, 0, 2, 2, 0, 0, GridBagConstraints.NORTHWEST,
                 GridBagConstraints.BOTH, new Insets(15, 15, 0, 15), 0, 0));
-        this.staffPane.add(lblLoggedStaff, new GridBagConstraints(0, 1, 2, 1, 0, 0, GridBagConstraints.NORTHWEST,
+        this.staffPane.add(tpLoggedStaff, new GridBagConstraints(0, 1, 2, 1, 0, 0, GridBagConstraints.NORTHWEST,
                 GridBagConstraints.BOTH, new Insets(15, 15, 0, 15), 0, 0));
         this.staffPane.add(patientsSP, new GridBagConstraints(0, 2, 2, 13, 0.7, 1, GridBagConstraints.NORTHWEST,
                 GridBagConstraints.BOTH, new Insets(15, 15, 15, 15), 0, 0));
@@ -257,8 +279,10 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
 
         // filling lists  //
 
+
         this.function.setElementList(listPosition, true, false);
         this.function.setElementList(listQual, false, true);
+        this.function.setHospitalsList(this.listhospitals);
        
         findStaffTF.addKeyListener(this);
         staffList.addListSelectionListener(this);
@@ -309,18 +333,29 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
 
     public void valueChanged(ListSelectionEvent e) {
         if (!e.getValueIsAdjusting()) {
+            //clear last schedual if any changes
+
+
             if (this.MOPanel.getSelectedIndex() == 0 &&
                     staffList.getSelectedIndex() >= 0 &&
                     e.getSource() == staffList) {
+
+                for (int i = 0; i < 7; i++) {
+                    for (int j = 1; j < 3; j++) {
+                        this.table.setValueAt("", i, j);
+                    }
+                }
                 String st = staffList.getSelectedValue().toString();
                 function.staffPersonalInfo(staff, st, staffTF);
                 function.staffListHosp(staff, st, this.listModelHosp);
+
                 this.tpPatiens.setText(function.patientForDoctor(staff, st));
             } else if (this.MOPanel.getSelectedIndex() == 0 &&
                     this.hospStaffList.getSelectedIndex() >= 0 &&
                     e.getSource() == this.hospStaffList) {
                 String st = staffList.getSelectedValue().toString();
-                function.checkSchedule(staff, st, this.table, this.hospStaffList);
+                this.tmpValueList = this.hospStaffList.getSelectedValue().toString();
+                function.checkStaffSchedule(staff, st, this.table, this.hospStaffList);
             } else if (this.MOPanel.getSelectedIndex() == 0 &&
                     this.positionList.getSelectedIndex() >= 0 &&
                     e.getSource() == this.positionList) {
@@ -332,7 +367,14 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
                     e.getSource() == this.qualificationList) {
                 //TO DO
                 staffTF[7].setText((String) this.qualificationList.getSelectedValue());
-            }
+            } /*doesn't get the control*/
+//            else if (this.MOPanel.getSelectedIndex() == 0 &&
+//                   /* this.hospitalsList.getSelectedIndex() >= 0 &&*/
+//                    e.getSource() == this.hospitalsList) {
+//                //TO DO
+//                this.tmpValueList = this.hospitalsList.getSelectedValue().toString();
+//                System.out.println(tmpValueList);
+//            }
         }
     }
 
@@ -358,21 +400,29 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
                         staffTF[i].setOpaque(true);
                         this.function.makeElementWithBorder(staffSP[i], labels[i], Color.RED, false);
                     }
-                    this.function.makeElementWithBorder(staffHospSP, "Schedule", Color.RED, false);
-                    this.table.setEnabled(true);
+                    
+                        this.function.makeElementWithBorder(staffHospSP, "Schedule", Color.RED, false);
+                        this.table.setEnabled(true);
+
+
                     // position
                     staffPane.remove(staffSP[8]);
                     staffPane.add(this.spPositionList, new GridBagConstraints(4, 6, 1, 4, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 15), 0, 0));
                     // qualif
                     staffPane.remove(staffSP[7]);
                     staffPane.add(this.spQualificationList, new GridBagConstraints(3, 6, 1, 4, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 15), 0, 0));
+                    //hospitals
+                    staffPane.remove(this.hlistSP);
+                    this.staffPane.add(this.spHospitals, new GridBagConstraints(2, 8, 1, 5, 0.1, 0.2, GridBagConstraints.NORTHWEST,
+                            GridBagConstraints.BOTH, new Insets(0, 0, 15, 15), 5, 5));
+
                     this.staffPane.revalidate();
                     this.staffPane.repaint();
                     
 
 
             } else if (this.btnEditStaff.getText().equalsIgnoreCase("Save changes")) {
-                try {
+
                     this.btnEditStaff.setText("Edit staff");
                     for (int i = 4; i < this.staffTF.length; i++) {
                         staffTF[i].setEditable(false);
@@ -387,51 +437,48 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
                     // qualif
                     staffPane.remove(this.spQualificationList);
                     staffPane.add(staffSP[7], new GridBagConstraints(3, 6, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 15, 15), 0, 0));
+                    //hospitals
+                    staffPane.remove(this.spHospitals);
+                    this.staffPane.add(this.hlistSP, new GridBagConstraints(2, 8, 1, 5, 0.1, 0.2, GridBagConstraints.NORTHWEST,
+                            GridBagConstraints.BOTH, new Insets(0, 0, 15, 15), 5, 5));
+
                     this.staffPane.revalidate();
                     this.staffPane.repaint();
                     // ----------------------
                     // edit staff
-                    int id = -1;
-                    int posId = -1;
-                    int qualId = -1;
-                    for (int i = 0; i < staff.size(); i++) {
-                        if (staff.get(i).getLname().equals(staffTF[1].getText()) && staff.get(i).getbDate().toString().equals(staffTF[2].getText())) {
-                            id = staff.get(i).getId();
-                        }
-                    }
-                    ResultSet rs = DB.db.position(this.positionList.getSelectedValue().toString());
-                    while (rs.next()) {
-                        posId = rs.getInt("id");
-                    }
+                    // 
+                    if(this.positionList.isSelectionEmpty())
+                        this.positionList.setSelectedValue(staffTF[8].getText(), true);
+                                   
+                    if(qualificationList.isSelectionEmpty())
+                        this.qualificationList.setSelectedValue(staffTF[7].getText(), true);
 
-                    rs = DB.db.qualification(this.qualificationList.getSelectedValue().toString());
-                    while(rs.next()){
-                        qualId = rs.getInt("id");
-                    }
-                    DB.db.staffUpdate(staffTF[4].getText(), staffTF[5].getText(), 
-                            staffTF[6].getText(), staffTF[9].getText(), posId, qualId, id);
+                    this.function.editMainStaffInfo(staff, staffTF, positionList, qualificationList);
+                  
+                    this.tmpValueList = this.hospitalsList.getSelectedValue().toString();
+                    this.function.editSchedualStaffInfo(staff, staffTF, table, this.tmpValueList);
 
-
-                    
-
+                    String st = staffList.getSelectedValue().toString();
+                    function.staffListHosp(staff, st, this.listModelHosp);
 
                     staff.removeAllElements();
                     this.function.fillStaff(staff);
-                } catch (SQLException ex) {
-                    Logger.getLogger(Staffs.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
 
             }
+            // add button
         } else if ((JButton) e.getSource() == this.btnAddStaff) {
+
             if (this.btnAddStaff.getText().equalsIgnoreCase("Add staff")) {
+
                 if (this.btnEditStaff.getText().equalsIgnoreCase("Save changes")) {
+
                     this.btnEditStaff.setText("Edit staff");
                     for (int i = 4; i < this.staffTF.length; i++) {
                         staffTF[i].setEditable(false);
                         staffTF[i].setOpaque(false);
                         this.function.makeElementWithBorder(staffSP[i], labels[i], Color.LIGHT_GRAY.darker(), false);
                     }
+                    // schedual added separetly
                     this.function.makeElementWithBorder(staffHospSP,  "Schedule", null, false);
                     this.table.setEnabled(true);
                 }
@@ -442,12 +489,18 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
                     staffTF[i].setText(null);
                     this.function.makeElementWithBorder(staffSP[i], labels[i], Color.RED, false);
                 }
+                for (int i = 0; i < 7; i++) {
+                    for (int j = 1; j < 3; j++) {
+                        this.table.setValueAt("", i, j);
+                    }
+                }
                 this.function.makeElementWithBorder(staffHospSP,  "Schedule", Color.RED, false);
                 this.listModel.removeAllElements();
                 this.listModelHosp.removeAllElements();
                 this.staffinfoTP.setText(null);
                 this.findStaffTF.setText(null);
                 this.table.setEnabled(true);
+                this.tpPatiens.setText(null);
 
                 // position
                 staffPane.remove(staffSP[8]);
@@ -458,14 +511,22 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
                 staffPane.remove(staffSP[7]);
                 staffPane.add(this.spQualificationList, new GridBagConstraints(3, 6, 1, 4, 1, 0, GridBagConstraints.NORTHWEST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 15), 0, 0));
+                
+                staffPane.remove(this.hlistSP);
+                this.staffPane.add(this.spHospitals, new GridBagConstraints(2, 8, 1, 5, 0.1, 0.2, GridBagConstraints.NORTHWEST,
+                            GridBagConstraints.BOTH, new Insets(0, 0, 15, 15), 5, 5));
+
+
                 this.staffPane.revalidate();
                 this.staffPane.repaint();
 
             } else if (this.btnAddStaff.getText().equalsIgnoreCase("Save changes")) {
+
                 this.btnAddStaff.setText("Add staff");
                 for (int i = 0; i < this.staffTF.length; i++) {
                     staffTF[i].setEditable(false);
                     staffTF[i].setOpaque(false);
+                    
                     this.function.makeElementWithBorder(staffSP[i],  labels[i], Color.LIGHT_GRAY.darker(), false);
                 }
                 this.table.setEnabled(false);
@@ -480,12 +541,40 @@ public class Staffs implements KeyListener, ListSelectionListener, ActionListene
                 staffPane.remove(this.spQualificationList);
                 staffPane.add(staffSP[7], new GridBagConstraints(3, 6, 1, 1, 1, 0, GridBagConstraints.NORTHWEST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 15, 15), 0, 0));
+
+                //hospitals
+               staffPane.remove(this.spHospitals);
+               this.staffPane.add(this.hlistSP, new GridBagConstraints(2, 8, 1, 5, 0.1, 0.2, GridBagConstraints.NORTHWEST,
+                            GridBagConstraints.BOTH, new Insets(0, 0, 15, 15), 5, 5));
+
                 this.staffPane.revalidate();
                 this.staffPane.repaint();
+                // ----------------------
+                // add staff
+                //
+                this.tmpValueList = this.hospitalsList.getSelectedValue().toString();
+                this.function.addStaffInfo(staff, staffTF, positionList, qualificationList, tmpValueList, table);
+
+                staff.removeAllElements();
+                this.function.fillStaff(staff);
+
+                for (int i = 0; i < this.staffTF.length; i++) {
+                     staffTF[i].setText(null);
+                }
+                
+                for (int i = 0; i < 7; i++) {
+                    for (int j = 1; j < 3; j++) {
+                        this.table.setValueAt("", i, j);
+                    }
+                }
+
+                JOptionPane.showMessageDialog(null, "Staff added");
 
             }
         }
 
 
     }
+
+    
 }

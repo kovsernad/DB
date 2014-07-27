@@ -7,19 +7,17 @@ package DoctorPanes;
 import hcssupport.DB;
 import hcsmain.*;
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import hcssupport.Func;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Vector;
+import java.util.*;
 import javax.swing.event.*;
 
-public class PatientActiveFile implements KeyListener, ListSelectionListener, ActionListener{
+public class PatientActiveFile implements KeyListener, ListSelectionListener, ActionListener, ChangeListener{
     private Vector<PatientInfo> patient;
     private Vector<DrugInfo> drugs;
+    private Vector<StaffInfo> staff;
     private DefaultListModel listMode;
     private DefaultListModel listModeDrug;
     private Func function;
@@ -33,7 +31,10 @@ public class PatientActiveFile implements KeyListener, ListSelectionListener, Ac
     private JScrollPane[] taJS;
     private JScrollPane drugJS;
     private JScrollPane patientJS;
-    private int id;
+    public static int ptid;
+    private int drugId;
+    private String drugstr = "|";
+    private PatientInfo temppatient;
     
     public PatientActiveFile(JTabbedPane Panel){
         this.PFPanel = Panel;
@@ -48,14 +49,39 @@ public class PatientActiveFile implements KeyListener, ListSelectionListener, Ac
         this.drugList = new JList(this.listModeDrug);
         this.patient = new Vector();
         this.drugs = new Vector();
+        this.staff = new Vector();
+        this.function.fillStaff(staff);
         this.function.fillSPatient(patient);
         this.function.fillDrugs(drugs);
         this.submitB = new JButton();
         
     }
-    public void PatientActiveFile(JPanel ptPane){
-        JScrollPane patientSP = new JScrollPane(patientTP);
+    public void PatientActiveFile(JPanel ptPane, int loggedId){
+        // for welcome label
+        StringBuffer loggedUser = new StringBuffer();
+        JTextPane tpLoggedStaff = new JTextPane();
 
+        for(int i = 0; i < staff.size(); i++){
+            if (staff.get(i).getId() == loggedId){
+                loggedUser.append("<b>"+staff.get(i).getLname());
+                loggedUser.append(", ");
+                loggedUser.append(staff.get(i).getFname()+"</b>");
+                if(staff.get(i).getPosition().equalsIgnoreCase("gp"))
+                    loggedUser.append("  [logged as Dr.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("ns"))
+                    loggedUser.append("  [logged as R.N.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("ma"))
+                    loggedUser.append("  [logged as Med.As.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("mo"))
+                    loggedUser.append("  [logged as Med.Of.]");
+
+            }
+        }
+        tpLoggedStaff.setContentType("text/html");
+        tpLoggedStaff.setText(loggedUser.toString());
+        this.function.setOpacity(tpLoggedStaff);
+        tpLoggedStaff.setEditable(false);
+        
         patientList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         patientList.setSelectedIndex(0);
         patientList.setVisibleRowCount(3);
@@ -63,36 +89,39 @@ public class PatientActiveFile implements KeyListener, ListSelectionListener, Ac
         this.drugList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.drugList.setSelectedIndex(0);
         this.drugList.setVisibleRowCount(3);
-
-        this.patientJS = new JScrollPane(this.patientList);
-        this.function.setOpacity(this.patientJS);
-
+        
         this.drugJS = new JScrollPane(this.drugList);
         this.function.setOpacity(this.drugJS);
+        
+        this.patientJS = new JScrollPane(this.patientList);
+        this.function.setOpacity(this.patientJS);
+        
+        //set Demensions if not to do that for both list and Js they will jump and move during the search
+        patientList.setPreferredSize(new Dimension(200, 125));
+        drugList.setPreferredSize(new Dimension(200, 125)); 
+        patientJS.setPreferredSize(new Dimension(200, 125));
+        drugJS.setPreferredSize(new Dimension(200, 125));
 
-        // set opacity for panel
-        patientTP = new JTextPane();
-        patientSP = new JScrollPane(patientTP);
-        this.function.setOpacity(this.patientTP);
-        this.function.setOpacity(patientSP);
-        TitledBorder titlecSP = BorderFactory.createTitledBorder
-                (BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Patient's General Information");
-        titlecSP.setTitleJustification(TitledBorder.LEFT);
-        patientSP.setBorder(titlecSP);
-        patientSP.setVisible(true);
-
-        //set Demensions
-        patientList.setPreferredSize(new Dimension(20, 125));
-        drugList.setPreferredSize(new Dimension(20, 125));
-
-        // set title for list
-        this.function.makeElementWithBorder(patientList, "Patients", null, true);
+         // set title for list
+        this.function.makeElementWithBorder(patientList, "Patients", Color.GRAY, false);
         patientList.setOpaque(false);
         ((javax.swing.DefaultListCellRenderer) patientList.getCellRenderer()).setOpaque(false);
 
-        this.function.makeElementWithBorder(drugList, "Drugs", null, true);
+        this.function.makeElementWithBorder(drugList, "Drugs", Color.GRAY, false);
         drugList.setOpaque(false);
         ((javax.swing.DefaultListCellRenderer) drugList.getCellRenderer()).setOpaque(false);
+       
+        //patient pane
+        JScrollPane patientSP = new JScrollPane(patientTP);
+        patientTP = new JTextPane();
+        patientSP = new JScrollPane(patientTP);
+        
+        this.function.setOpacity(this.patientTP);
+        this.function.setOpacity(patientSP);
+        function.makeElementWithBorder(patientSP, "Patient's General Information", Color.GRAY, false);
+        patientSP.setVisible(true);
+        patientSP.setPreferredSize(new Dimension(600, 100));
+
 
         //timer
         final JTextPane timeTP = new JTextPane();
@@ -111,19 +140,20 @@ public class PatientActiveFile implements KeyListener, ListSelectionListener, Ac
             }
         }).start();
 
+        //text fields with labels
         String[] lb = {"Patient", "Patient's birth date", "Drug"};
 
         patient2TF = new JTextField[lb.length];
         for (int i = 0; i < lb.length; i++) {
             patient2TF[i] = new JTextField(15);
-            TitledBorder tl = BorderFactory.createTitledBorder
-                    (BorderFactory.createLineBorder(Color.DARK_GRAY), lb[i]);
-            tl.setTitleJustification(TitledBorder.LEFT);
-            patient2TF[i].setBorder(tl);
+            function.makeElementWithBorder(patient2TF[i], lb[i], Color.DARK_GRAY, false);
             patient2TF[i].setOpaque(false);
         }
+        patient2TF[1].setPreferredSize(new Dimension(200, 40));
+        patient2TF[2].setPreferredSize(new Dimension(200, 40));
         
-      String[] lbta = {"Patient's Anamnesis", "Patient's Diagnosis", "Patient's Prescriptions"};
+        //text areas with labels
+        String[] lbta = {"Patient's Anamnesis", "Patient's Diagnosis", "Patient's Prescriptions"};
 
         patientTA = new JTextArea[lbta.length];
         taJS = new JScrollPane[lbta.length];
@@ -132,24 +162,22 @@ public class PatientActiveFile implements KeyListener, ListSelectionListener, Ac
             patientTA[i] = new JTextArea();
             patientTA[i].setLineWrap(true);
             taJS[i] = new JScrollPane(patientTA[i]);
-            TitledBorder titlePresc = BorderFactory.createTitledBorder
-                (BorderFactory.createLineBorder(Color.DARK_GRAY), lbta[i]);
-            titlePresc.setTitleJustification(TitledBorder.LEFT);
-            taJS[i].setBorder(titlePresc);
+            function.makeElementWithBorder(taJS[i], lbta[i], Color.DARK_GRAY, false);
             taJS[i].setVisible(true);
         }
-        patient2TF[1].setPreferredSize(new Dimension(200, 40));
-        patient2TF[2].setPreferredSize(new Dimension(200, 40));
-        patientSP.setPreferredSize(new Dimension(600, 100));
+        
         //building pane
         ptPane.add(timeTP, new GridBagConstraints(0, 0, 1, 1, 0.5, 0, GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+        ptPane.add(tpLoggedStaff, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.NORTHWEST,
+                GridBagConstraints.BOTH, new Insets(50, 15, 0, 15), 0, 0));
+        
         ptPane.add(patient2TF[0], new GridBagConstraints(1, 0, 2, 1, 0.5, 0,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+                GridBagConstraints.BOTH, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(patient2TF[1], new GridBagConstraints(3, 0, 2, 1, 0.5, 0,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+                GridBagConstraints.BOTH, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(patientJS, new GridBagConstraints(4, 1, 1, 5, 0.5, 0.5,
                 GridBagConstraints.NORTH,
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
@@ -189,53 +217,61 @@ public class PatientActiveFile implements KeyListener, ListSelectionListener, Ac
         patient2TF[0].addKeyListener(this);
         patient2TF[2].addKeyListener(this);
         patientList.addListSelectionListener(this);
+        drugList.addListSelectionListener(this);
 
+        this.PFPanel.addChangeListener(this);
         this.submitB.setText("Submit");
-        this.submitB.addActionListener(this);
-
-        
+        this.submitB.addActionListener(this);       
     }
-    //?????????????????????????????????????????????????????????????/
+
     public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ENTER){
-                //fills the list according to the typed letters
-//            if ((this.PFPanel.getSelectedIndex() == 0 || this.PFPanel.getSelectedIndex() == 1) &&
-//                ((e.getKeyChar() >= 65 && e.getKeyChar() <= 90) ||
-//                (e.getKeyChar() >= 97 && e.getKeyChar() <= 122) ||
-//                (!patient2TF[0].getText().isEmpty() &&
-//                (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)))){
-            if(this.PFPanel.getSelectedIndex() == 0 && listMode.size() == 1){
+        if (e.getSource() == patient2TF[0]) {
+            if ((/*this.PFPanel.getSelectedIndex() == 0 || */this.PFPanel.getSelectedIndex() == 1) &&
+                    ((e.getKeyChar() >= 65 && e.getKeyChar() <= 90) ||
+                    (e.getKeyChar() >= 97 && e.getKeyChar() <= 122) ||
+                    (!patient2TF[0].getText().isEmpty() &&
+                    (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)))) {
 
                 function.patientList(patient, patient2TF[0], listMode);
             }
-    }
-            ///?????????????????????????????????????????????????????
-//        else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE){
-           else if((this.PFPanel.getSelectedIndex() == 0 || this.PFPanel.getSelectedIndex() == 1 )&&
-                ((e.getKeyChar() >= 65 && e.getKeyChar() <= 90) ||
-                (e.getKeyChar() >= 97 && e.getKeyChar() <= 122) ||
-                (!patient2TF[2].getText().isEmpty() &&
-                (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)))){
+        } else if (e.getSource() == patient2TF[2]) {
+            if ((/*this.PFPanel.getSelectedIndex() == 0 || */this.PFPanel.getSelectedIndex() == 1) &&
+                    ((e.getKeyChar() >= 65 && e.getKeyChar() <= 90) ||
+                    (e.getKeyChar() >= 97 && e.getKeyChar() <= 122) ||
+                    (!patient2TF[2].getText().isEmpty() &&
+                    (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)))) {
 
-               function.drugsList(drugs, patient2TF[2], listModeDrug);
-                }
-//        }
+                function.drugsList(drugs, patient2TF[2], listModeDrug);
+            }
+        }
     }
     public void actionPerformed(ActionEvent e){
         if((JButton) e.getSource()==this.submitB){
-            DB.db.diagAnamUpdate(patientTA[0].getText(), patientTA[1].getText(), id);
+            DB.db.diagAnamUpdate(patientTA[0].getText(), patientTA[1].getText(), ptid);
+            DB.db.prescInsert(patientTA[2].getText(), ptid, drugstr);
             JOptionPane.showMessageDialog(null, "The Diagnosis, Anamnesis and Prescription were submitted!");
         }
     }
     public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
+               if (!e.getValueIsAdjusting()) {
             if ((this.PFPanel.getSelectedIndex() == 0 || this.PFPanel.getSelectedIndex() == 1) &&
                     patientList.getSelectedIndex() >= 0 &&
                     e.getSource() == patientList) {
                 String st = patientList.getSelectedValue().toString();
                 function.patientInfo(patient, st, patient2TF, patientTP, null);
 
-                this.id = function.patientInfo(patient, st, patient2TF, patientTP, null);
+                ptid = function.patientInfo(patient, st, patient2TF, patientTP, null);
+            }
+            else if ((this.PFPanel.getSelectedIndex() == 0 || this.PFPanel.getSelectedIndex() == 1) &&
+                    drugList.getSelectedIndex() >= 0 &&
+                    e.getSource() == drugList) {
+                String st = drugList.getSelectedValue().toString();
+
+                function.drugInfo(drugs, st, patient2TF[2],  null);
+
+                this.drugId = function.drugInfo(drugs, st, patient2TF[2],  patientTA[2]);
+
+                drugstr += String.valueOf(drugId).concat("|");
             }
         }
     }
@@ -244,6 +280,16 @@ public class PatientActiveFile implements KeyListener, ListSelectionListener, Ac
 
     public void keyTyped(KeyEvent e) {
 
-    } 
+    }
+
+    public void stateChanged(ChangeEvent e) {
+        ptid = PatientDocFile.id;
+        temppatient = new PatientInfo();
+        function.fillPatient(temppatient, ptid);
+        patient2TF[0].setText(temppatient.getFname()+" "+this.temppatient.getLname());
+        patient2TF[1].setText(""+temppatient.getBdate());
+        function.patientPersonalInfo(temppatient, null, patientTP, null);
+
+    }
     
 }

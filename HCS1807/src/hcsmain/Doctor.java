@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package hcsmain;
 
 import DoctorPanes.*;
@@ -20,8 +16,11 @@ public class Doctor {
     private JTabbedPane DPanel;
     private PatientDocFile ptfile;
     private PatientActiveFile pafile;
+    private PatientHistory phistory;
+    private int userId;
     
-        public Doctor(){
+        public Doctor(int id){
+            this.userId = id;
             this.init();
         }
     
@@ -31,20 +30,25 @@ public class Doctor {
         this.DPanel = new JTabbedPane();
         this.ptfile = new PatientDocFile(this.DPanel);
         this.pafile = new PatientActiveFile(this.DPanel);
+        this.phistory = new PatientHistory(this.DPanel);
         
         //Creating pane objects
         JPanel pPane = new JPanel();
         JPanel paPane = new JPanel();
+        JPanel hPane = new JPanel();
         
         //Setting names of panes
         this.DPanel.add("Patient File", pPane);
         this.DPanel.add("Patient Active File", paPane);
+        this.DPanel.add("Patient medical History", hPane);
         
         pPane.setLayout(new GridBagLayout());
         paPane.setLayout(new GridBagLayout());
+        hPane.setLayout(new GridBagLayout());
         
-        this.ptfile.PatientDocFile(pPane);
-        this.pafile.PatientActiveFile(paPane);
+        this.ptfile.PatientDocFile(pPane, userId);
+        this.pafile.PatientActiveFile(paPane, userId);
+        this.phistory.PatientHistory(hPane, userId);
                 
         this.frame.setContentPane(this.DPanel);
         this.frame.setTitle("HEALTH CARE SYSTEM. Doctor");

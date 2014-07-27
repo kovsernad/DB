@@ -6,22 +6,16 @@ package NursePane;
  */
 import hcsmain.*;
 import java.awt.*;
-import java.sql.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import hcssupport.Func;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.swing.event.*;
 
-
-
 public class PatientForm implements KeyListener, ListSelectionListener, ActionListener{
     private Vector<PatientInfo> patient;
-//    private Vector<StaffInfo> staff;
+    private Vector<StaffInfo> staff;
     private DefaultListModel listMode;
     private Func function;
     private JTextPane[] patientcTP;
@@ -29,7 +23,7 @@ public class PatientForm implements KeyListener, ListSelectionListener, ActionLi
     private JTabbedPane PFPanel;
     private JTextField[] patientTF;
     private JButton nextB;
-    private int id;
+    public static int id;
 
     public PatientForm(JTabbedPane Panel){
         this.PFPanel = Panel;
@@ -42,31 +36,39 @@ public class PatientForm implements KeyListener, ListSelectionListener, ActionLi
         this.patientcTP = new JTextPane[4];
         this.patientList = new JList(this.listMode);
         this.patient = new Vector();
-//        this.staff = new Vector();
-//        this.function.fillSPatient(patient);
+        this.staff = new Vector();
+        this.function.fillStaff(staff);
         this.nextB = new JButton();
-        
-                function.fillSPatient(patient);
-//                function.fillStaff(staff);
+
+        function.fillSPatient(patient);
+
     }
-    public void patientForm(JPanel ptPane){
-//    public void patientForm(JPanel ptPane, int  loggedId){
-        //loggedStaff
-//        JTextPane lblLoggedStaff = new JTextPane();
-//        StringBuffer loggedUser = new StringBuffer();
-//        //welcome label
-//        for(int i = 0; i < staff.size(); i++){
-//            if (staff.get(i).getId() == loggedId){
-//                loggedUser.append("<b>"+staff.get(i).getLname());
-//                loggedUser.append(", ");
-//                loggedUser.append(staff.get(i).getFname()+"</b>");
-//                if (staff.get(i).getPosition().equalsIgnoreCase("ns"))
-//                    loggedUser.append("  [logged as R.N.]");
-//        }
-//        lblLoggedStaff.setContentType("text/html");
-//        lblLoggedStaff.setText(loggedUser.toString());
-//        this.function.setOpacity(lblLoggedStaff);
-//        lblLoggedStaff.setEditable(false);   
+
+    public void patientForm(JPanel ptPane, int loggedId){
+        // for welcome label
+        StringBuffer loggedUser = new StringBuffer();
+        JTextPane tpLoggedStaff = new JTextPane();
+
+        for(int i = 0; i < staff.size(); i++){
+            if (staff.get(i).getId() == loggedId){
+                loggedUser.append("<b>"+staff.get(i).getLname());
+                loggedUser.append(", ");
+                loggedUser.append(staff.get(i).getFname()+"</b>");
+                if(staff.get(i).getPosition().equalsIgnoreCase("gp"))
+                    loggedUser.append("  [logged as Dr.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("ns"))
+                    loggedUser.append("  [logged as R.N.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("ma"))
+                    loggedUser.append("  [logged as Med.As.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("mo"))
+                    loggedUser.append("  [logged as Med.Of.]");
+
+            }
+        }
+        tpLoggedStaff.setContentType("text/html");
+        tpLoggedStaff.setText(loggedUser.toString());
+        this.function.setOpacity(tpLoggedStaff);
+        tpLoggedStaff.setEditable(false);
             
         JScrollPane[] patientSP = new JScrollPane[patientcTP.length];
         
@@ -83,10 +85,7 @@ public class PatientForm implements KeyListener, ListSelectionListener, ActionLi
                 patientSP[i] = new JScrollPane(patientcTP[i]);
                 this.function.setOpacity(this.patientcTP[i]);
                 this.function.setOpacity(patientSP[i]);
-                TitledBorder titleSP = BorderFactory.createTitledBorder
-                (BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), lb1[i]);
-                titleSP.setTitleJustification(TitledBorder.LEFT);
-                patientSP[i].setBorder(titleSP);
+                function.makeElementWithBorder(patientSP[i], lb1[i], Color.DARK_GRAY, false);
                 patientSP[i].setVisible(true);
                 patientSP[i].setPreferredSize(new Dimension(600, 100));
         }
@@ -94,10 +93,7 @@ public class PatientForm implements KeyListener, ListSelectionListener, ActionLi
         patientList.setPreferredSize(new Dimension(20, 125));
         
         // set title for list
-        TitledBorder title = BorderFactory.createTitledBorder
-		(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Patients");
-        title.setTitleJustification(TitledBorder.LEFT);
-        patientList.setBorder(title);
+        function.makeElementWithBorder(patientList, "Patients", Color.DARK_GRAY, false);
         patientList.setOpaque(false);
         ((javax.swing.DefaultListCellRenderer) patientList.getCellRenderer()).setOpaque(false);
 
@@ -123,20 +119,18 @@ public class PatientForm implements KeyListener, ListSelectionListener, ActionLi
         patientTF = new JTextField[lb.length];
         for (int i = 0; i < lb.length; i++) {
             patientTF[i] = new JTextField(15);
-            TitledBorder tl = BorderFactory.createTitledBorder
-                    (BorderFactory.createLineBorder(Color.DARK_GRAY), lb[i]);
-            tl.setTitleJustification(TitledBorder.LEFT);
-            patientTF[i].setBorder(tl);
+            function.makeElementWithBorder(patientTF[i], lb[i], Color.DARK_GRAY, false);
             patientTF[i].setOpaque(false);
         }
         patientTF[1].setPreferredSize(new Dimension(80, 40));
 
         //building pane
-        ptPane.add(timeTP, new GridBagConstraints(0, 0, 1, 1, 0.5, 0, GridBagConstraints.CENTER,
+        ptPane.add(timeTP, new GridBagConstraints(0, 0, 1, 1, 0.5, 0, 
+                GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(15, 15, 15, 15), 0, 0));
-//         ptPane.add(lblLoggedStaff, new GridBagConstraints(0, 1, 1, 1, 0, 0, 
-//                 GridBagConstraints.NORTHWEST,
-//                GridBagConstraints.BOTH, new Insets(15, 15, 0, 15), 0, 0));
+        ptPane.add(tpLoggedStaff, new GridBagConstraints(0, 0, 1, 1, 0, 0, 
+                GridBagConstraints.NORTHWEST,
+                GridBagConstraints.BOTH, new Insets(50, 15, 0, 15), 0, 0));
         ptPane.add(patientTF[0], new GridBagConstraints(1, 0, 2, 1, 0.5, 0,
                 GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(15, 15, 15, 15), 0, 0));
@@ -152,7 +146,7 @@ public class PatientForm implements KeyListener, ListSelectionListener, ActionLi
         for (int i = 0; i < lb1.length; i++) {
             ptPane.add(patientSP[i], new GridBagConstraints
                     (0, pozY, 4, 2, 0.5, 0.5, GridBagConstraints.CENTER,
-                    GridBagConstraints.BOTH, new Insets(15, 15, 15, 15), 0, 0));
+                    GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
             pozY+=2;
         }
@@ -167,8 +161,8 @@ public class PatientForm implements KeyListener, ListSelectionListener, ActionLi
         new javax.swing.Timer(500000, new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-//                function.fillSPatient(patient);
-//                function.fillStaff(staff);
+                function.fillSPatient(patient);
+                function.fillStaff(staff);
                 patientcTP[0].setText(null);
             }
         }).start();
@@ -176,15 +170,12 @@ public class PatientForm implements KeyListener, ListSelectionListener, ActionLi
         //filling the text box and list
         patientTF[0].addKeyListener(this);
         patientList.addListSelectionListener(this);
-
-       
+   
     }
     
     public void keyPressed(KeyEvent e) {
     }
-
     public void keyTyped(KeyEvent e) {
-
     }
     public void keyReleased(KeyEvent e) {
                 //fills the list according to the typed letters
@@ -194,8 +185,7 @@ public class PatientForm implements KeyListener, ListSelectionListener, ActionLi
                 (!patientTF[0].getText().isEmpty() &&
                 (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)))){
 
-                function.patientList(patient, patientTF[0], listMode);
-            
+                function.patientList(patient, patientTF[0], listMode);            
         }
     }
     public void actionPerformed(ActionEvent e){
@@ -211,7 +201,8 @@ public class PatientForm implements KeyListener, ListSelectionListener, ActionLi
                 String st = patientList.getSelectedValue().toString();
                 function.patientInfo(patient, st, patientTF, null, patientcTP);
 
-                this.id = function.patientInfo(patient, st, patientTF, null, patientcTP);
+                id = function.patientInfo(patient, st, patientTF, null, patientcTP);
+                PatientFile.ptid = PatientForm.id;
             }
         }
     }

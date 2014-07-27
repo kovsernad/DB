@@ -2,20 +2,22 @@ package NursePane;
 
 /**
  *
- * @author ContEd Student
+ * @author Nadine
  */
+import hcsmain.*;
+import hcssupport.DB;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.event.ActionListener;
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import hcssupport.Func;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.*;
+import javax.swing.event.*;
 
-
-public class PatientIllness implements ActionListener, ItemListener{
+public class PatientIllness implements ActionListener, ItemListener, ChangeListener{
     private Func function;
+    private Vector<StaffInfo> staff;
     private JTabbedPane PFPanel;
     private JButton nextB;
     //lables for check boxes
@@ -39,18 +41,54 @@ public class PatientIllness implements ActionListener, ItemListener{
             "Attempted suicide"};
     private     JCheckBox[] cb ;
     private JTextField[] medilTF;
+    public static int ptiid;
+    private PatientInfo temppatient;
+    private String str = "|";
     
     public PatientIllness(JTabbedPane Panel)
     {
         this.PFPanel = Panel;
-        this.nextB = new JButton();
         this.init();
     }
     private void init(){
         this.function = new Func();
+        this.staff = new Vector();
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+
+                public void run() {
+                     function.fillStaff(staff);
+                }
+        });
+       
+        this.nextB = new JButton();
+//        this.temppatient = new PatientInfo();
                
     }
-    public void patientIllness(JPanel ptPane){
+    public void patientIllness(JPanel ptPane, int loggedId){
+        // for welcome label
+        StringBuffer loggedUser = new StringBuffer();
+        JTextPane tpLoggedStaff = new JTextPane();
+
+        for(int i = 0; i < staff.size(); i++){
+            if (staff.get(i).getId() == loggedId){
+                loggedUser.append("<b>"+staff.get(i).getLname());
+                loggedUser.append(", ");
+                loggedUser.append(staff.get(i).getFname()+"</b>");
+                if(staff.get(i).getPosition().equalsIgnoreCase("gp"))
+                    loggedUser.append("  [logged as Dr.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("ns"))
+                    loggedUser.append("  [logged as R.N.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("ma"))
+                    loggedUser.append("  [logged as Med.As.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("mo"))
+                    loggedUser.append("  [logged as Med.Of.]");
+
+            }
+        }
+        tpLoggedStaff.setContentType("text/html");
+        tpLoggedStaff.setText(loggedUser.toString());
+        this.function.setOpacity(tpLoggedStaff);
+        tpLoggedStaff.setEditable(false);
 
         // creating check boxes with labels
         cb = new JCheckBox[cbstr.length];
@@ -65,10 +103,7 @@ public class PatientIllness implements ActionListener, ItemListener{
         medilTF = new JTextField[immstr.length];
         for (int i = 0; i < immstr.length; i++) {
             medilTF[i] = new JTextField();
-            TitledBorder tl = BorderFactory.createTitledBorder
-                    (BorderFactory.createLineBorder(Color.DARK_GRAY), immstr[i]);
-            tl.setTitleJustification(TitledBorder.LEFT);
-            medilTF[i].setBorder(tl);
+            function.makeElementWithBorder(medilTF[i], immstr[i], Color.DARK_GRAY, false);
             medilTF[i].setOpaque(false);
         }
 
@@ -90,15 +125,18 @@ public class PatientIllness implements ActionListener, ItemListener{
         }).start();
 
         //building pane
-        ptPane.add(timeTP, new GridBagConstraints(0, 0, 1, 1, 0.5, 0, GridBagConstraints.CENTER,
+        ptPane.add(timeTP, new GridBagConstraints(0, 0, 1, 1, 0.5, 0,
+                GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(15, 15, 15, 15), 0, 0));
-        ptPane.add(medilTF[0], new GridBagConstraints(1, 0, 2, 1, 0.5, 0.5,
+        ptPane.add(tpLoggedStaff, new GridBagConstraints(0, 0, 1, 1, 0, 0,
                 GridBagConstraints.NORTHWEST,
-                GridBagConstraints.HORIZONTAL, new Insets(5, 15, 5, 15), 0, 0));
-
-        ptPane.add(medilTF[1], new GridBagConstraints(3, 0, 1, 1, 0.5, 0.5,
+                GridBagConstraints.BOTH, new Insets(50, 15, 0, 15), 0, 0));
+        ptPane.add(medilTF[0], new GridBagConstraints(1, 0, 2, 1, 0.5, 0,
                 GridBagConstraints.NORTHWEST,
-                GridBagConstraints.HORIZONTAL, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.HORIZONTAL, new Insets(15, 15, 15, 15), 0, 0));
+        ptPane.add(medilTF[1], new GridBagConstraints(3, 0, 1, 1, 0.5, 0,
+                GridBagConstraints.NORTHWEST,
+                GridBagConstraints.HORIZONTAL, new Insets(15, 15, 15, 15), 0, 0));
 
         int pozY = 1, pozX = -1;
 
@@ -112,34 +150,55 @@ public class PatientIllness implements ActionListener, ItemListener{
             }
         }
 
-        ptPane.add(medilTF[2], new GridBagConstraints(0, 11, 4, 1, 0, 0.5,
+        ptPane.add(medilTF[2], new GridBagConstraints(0, 11, 4, 1, 0, 0,
                 GridBagConstraints.NORTHWEST,
                 GridBagConstraints.HORIZONTAL, new Insets(5, 15, 15, 15), 0, 0));
 
         this.nextB.setText("Next");
         this.nextB.addActionListener(this);
+        this.PFPanel.addChangeListener(this);
 
         ptPane.add(this.nextB, new GridBagConstraints(3, 13, 1, 1, 0, 0,
                 GridBagConstraints.CENTER,
                 GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
-
     }
 
         public void actionPerformed(ActionEvent e){
         if((JButton) e.getSource()==this.nextB){
             this.PFPanel.setSelectedIndex(4);
-            System.out.println("MMMMM"+medilTF[2].getText());
+            StringBuffer info = new StringBuffer();
+            info.append(str);
+            info.append(medilTF[2].getText()+"|");
+            
+            DB.db.insertIllHistory(info.toString(), ptiid);
+       
+            System.out.println(info.toString());
         }
     }
         public void itemStateChanged(ItemEvent e){
+            StringBuffer tempinfo = new StringBuffer();
+            Vector<StringBuffer> temp = new Vector();
             
             Object sourse = e.getItemSelectable();
+            
             for(int i = 0; i<cbstr.length; i++ ){
                 if(sourse.equals(cb[i])){
-                System.out.println("!!!!"+cb[i].getText());
+                    
+                tempinfo.append(cb[i].getText()+"|");
+                temp.add(tempinfo);
                 }
             }
-            
+            for(int i = 0; i < temp.size(); i++){
+                str += temp.get(i).toString();
+            }
         }
+    public void stateChanged(ChangeEvent e) {
+        ptiid = PatientHistory.pthid;
+        temppatient = new PatientInfo();
+        function.fillPatient(temppatient, ptiid);
+        medilTF[0].setText(this.temppatient.getFname()+" "+this.temppatient.getLname());
+        medilTF[1].setText(""+temppatient.getBdate());
+       
+    }
 
 }

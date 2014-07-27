@@ -172,7 +172,9 @@ anamnesis VARCHAR2(3000),
 diagnosis VARCHAR2(1000),
 gmedhistory VARCHAR2(3000),
 illnesshistory VARCHAR2(3000),
-medspechistory VARCHAR2(3000)
+medspechistory VARCHAR2(3000),
+login VARCHAR2(16),
+password VARCHAR2(128)
 );
 
 CREATE SEQUENCE patient_seq;
@@ -192,7 +194,7 @@ END;
 CREATE TABLE prescription (
 id NUMBER(10),
 patientid NUMBER(11),
-prescription VARCHAR2(100),
+prescription VARCHAR2(1000),
 drugid VARCHAR2(60),
 CONSTRAINT prescription_patientid_fk FOREIGN KEY (patientid) REFERENCES patient(id),
 CONSTRAINT pres_drugid_patientid_pk PRIMARY KEY (id, patientid) 
@@ -283,7 +285,7 @@ CONSTRAINT staffsh_stidhid_wday_pk PRIMARY KEY (hospid, staffid, workday)
 CREATE TABLE schedule (
 id NUMBER(20), 
 patientid NUMBER(11),
-sdate DATE,
+sdate TIMESTAMP,
 staffid NUMBER(7),
 testid NUMBER(11),
 CONSTRAINT schedule_id_patientid_pk PRIMARY KEY (id, patientid),
@@ -357,22 +359,22 @@ VALUES ('Robert J.', 'Moore', '24-APR-1945' ,  'RobertJMoore@dayrep.com' ,
 INSERT INTO staff (fname,lname, bdate, email, address, zip, phone, SSN, posid, qualid, login, password )
 VALUES ('Shirley', 'Minor', '14-NOV-1967'  ,  'ShirleyJMinor@armyspy.com', 
 '4293 Avenue de Esplanade Montreal' , 'T5J 2R4' ,  '780-996-5578', '726768716', 2, 5, 
-'test1', 'nGxum2uOdpU=' );
+'Minor', 'nGxum2uOdpU=' );
 
 INSERT INTO staff (fname,lname, bdate, email, address, zip, phone, SSN, posid, qualid, login, password )
 VALUES ('Mary', 'Sheldon', '14-NOV-1987'  ,  'SheldonJMary@armyspy.com', 
 '42 Avenue Henri Julien Montreal' , 'V1S 1H6' ,  '514-996-5578', '336768716', 2, 5, 
-'test1', 'nGxum2uOdpU=' );
+'Sheldon', 'nGxum2uOdpU=' );
 
 INSERT INTO staff (fname,lname, bdate, email, address, zip, phone, SSN, posid, qualid, login, password )
 VALUES ('Lilliana', 'Ogden', '14-MAR-1977'  ,  'OgdenLill@armyspy.com', 
 '93 Avenue de Esplanade Montreal' , 'T3J 2H4' ,  '514-966-5578', '33764416', 2, 5, 
-'test1', 'nGxum2uOdpU=' );
+'Ogden', 'nGxum2uOdpU=' );
 
 INSERT INTO staff (fname,lname, bdate, email, address, zip, phone, SSN, posid, qualid, login, password )
 VALUES ('Kevin', 'Evered ', '24-NOV-1989'  ,  'EveredKevin@gmail.com', 
 '29 67e Av Laval' , 'L5J 2R4' ,  '450-566-5566', '346734716', 2, 5, 
-'test1', 'nGxum2uOdpU=' );
+'Evered', 'nGxum2uOdpU=' );
   
 
 INSERT INTO staff (fname,lname, bdate, email, address, zip, phone, SSN, posid, qualid, login, password )
@@ -479,66 +481,71 @@ INSERT INTO drugs (name, dose, price, avlb, remburs) VALUES ('VIIBRYD' , '40 MG 
 -- patients
 
 INSERT INTO patient (id, fname, lname, bdate, email, address, 
-zip, phone, medcard, insurrance, ssn, anamnesis, diagnosis)
+zip, phone, medcard, insurrance, ssn, anamnesis, diagnosis, gmedhistory, illnesshistory, medspechistory, login, password)
 VALUES (1, 'Carol B.', 'Chapman', '21-MAR-1983', 'CarolBChapman@rhyta.com',  
 '1214 Avenue Shorecrest Laval', 'P0C 1A0', '514-555-0142' ,'CHAC 1234 5678', 
 '1Z 132 162 58 7392 178 6', '552180598', 'Headache and fever (39.3 C). The general indisposition ', 
-'the flu');
+'the flu',
+'|Previous Doctor:|Dr.Smith|Previous Medical Institution:|St.Mary clinic|Date of the Last Exam:|12.06.2014|The Reason of the Last Exam:|severe headache|The Hepatitis virus, if any.|no|The heart disease if any.|no|The Tabacoo History, if any.|no|The Alcohol History, if any.|once a month|The chronic diseases, if any:|no|The Allergies, if any:|peanuts|The Drug reactions, if any:|no|Describe any special features:|no|',
+'Shortness of breathe|Seasonal allergies|Tonsillitis|Headaches/Migraines|Anemia or blood problems|',
+'Have you ever been hospitalized?|Yes|Have you ever been tested for Hepatitis?|No|Have you had a sexually transmitted disease?|No|Have you ever been tested for HIV disease?|No|Have you had a Tuberculosis (TB) Screening?|No|
+Have you had a TB screen or an x-ray?|No|Could you provide the copies of tests?|No|Pneumovax:|2000|Hepatitis B:|2000|Hepatitis A:|2000|Varicella:|1988|Zostavax:|never|Gardisil:|never|',
+'Chapman', 'nGxum2uOdpU=');
 
 INSERT INTO patient (fname, lname, bdate, email, address, zip, phone, 
-medcard, insurrance, ssn, anamnesis, diagnosis)
+medcard, insurrance, ssn, anamnesis, diagnosis, login, password)
 VALUES ('Margaret', 'Egan', '25-DEC-1925' , 'MargaretDEgan@jourrapide.com',
 '7493 Rue André Breton Laval', 'M5H 1P6', '514-435-0172'  ,'EGAM 5521 8059', 
 '1Z 578 473 93 3515 049 9', '756945994',
 'tingling, pins and needles or numbness, muscle weakness, very pronounced reflexes, ' ||
 'muscle spasms, or difficulty in moving; difficulties with coordination and balance (ataxia); ' ||
 'problems with speech or swallowing, visual problems (nystagmus, optic neuritis or double vision), ' || 
-'feeling tired, acute or chronic pain, and bladder ','Multiple sclerosis');
+'feeling tired, acute or chronic pain, and bladder ','Multiple sclerosis',  'Egan', 'nGxum2uOdpU=');
 
 INSERT INTO patient (fname, lname, bdate, email, address, zip, phone, 
-medcard, insurrance, ssn, anamnesis, diagnosis)
+medcard, insurrance, ssn, anamnesis, diagnosis, login, password)
 VALUES ('Walter', 'Thompson', '21-NOV-1955' , 'WalterLThompson@rhyta.com', 
 '66 Rue Caumartin Laval', 'Y0B 1G', '514-785-0112' ,'THOW 1234 5678', 
 '1Z 878 A10 27 1315 029 1', '226724300',' shortness of breath, fatigue, non-productive cough,' ||
 ' angina pectoris, fainting or syncope' ,'Pulmonary hypertension , redness, itching ' || 
-'and discomfort between the fingers mycosis');
+'and discomfort between the fingers mycosis',  'Thompson', 'nGxum2uOdpU=');
 
 INSERT INTO patient (fname, lname, bdate, email, address, zip, phone, 
-medcard, insurrance, ssn, anamnesis, diagnosis)
+medcard, insurrance, ssn, anamnesis, diagnosis, login, password)
 VALUES ('Susan', 'Patterson', '13-JUN-1958' , 'SusanWPatterson@jourrapide.com',  
 '12216 Rue Richer Montreal', 'V6B 3K9', '514-565-0122' ,'PATS 2267 2430', 
-'11Z 891 W99 44 6594 797 8', '466050168', 'repetetive headaches', 'Migraine');
+'11Z 891 W99 44 6594 797 8', '466050168', 'repetetive headaches', 'Migraine',  'Patterson', 'nGxum2uOdpU=');
 
 INSERT INTO patient (fname, lname, bdate, email, address, zip, phone, 
-medcard, insurrance, ssn, anamnesis, diagnosis)
+medcard, insurrance, ssn, anamnesis, diagnosis, login, password)
 VALUES ('John', 'Pinckney', '21-MAR-1983', 'JohnIPinckney@armyspy.com' ,  
 '12751 Rue Tracy Montreal', 'V3C 4S7', '514-995-0170' ,'PINJ 4660 5016', 
 '1Z 100 693 94 9107 530 0', '026961748','headaches particularly at the back of ' || 
 'the head and in the morning, as well as lightheadedness, vertigo, tinnitus ' || 
-'(buzzing or hissing in the ears), high pressure 1790/120', 'Hypertension');
+'(buzzing or hissing in the ears), high pressure 1790/120', 'Hypertension',  'Pinckney', 'nGxum2uOdpU=');
 
 INSERT INTO patient (fname, lname, bdate, email, address, zip, phone, 
-medcard, insurrance, ssn, anamnesis, diagnosis)
+medcard, insurrance, ssn, anamnesis, diagnosis, login, password)
 VALUES ('Andy', 'Evans', '8-JUN-1945' , 'AndyMEvans@jourrapide.com' ,  
 '4740 Boulevard Saint Joseph Montreal', 'S4P 3Y2', '514-258-0106' , 
 'EVAA 0269 6174', '1Z 189 63E 17 4015 269 7', '473349066', 
 'Raised areas of inflamed skin covered with silvery white scaly skin on the ' || 
 'elbows, knees, scalp, and back. Inflammation and exfoliation ' || 
-'of the skin in these areas', 'Psoriasis');
+'of the skin in these areas', 'Psoriasis',  'Evans', 'nGxum2uOdpU=');
 
 --prescription
 INSERT INTO prescription (id, patientid, prescription, drugid) 
-VALUES(1, 1, 'bed rest and TYLENOL Extra Strength, 3 times a day', '1|26|13');
+VALUES(1, 1, 'TYLENOL Extra Strength, 3 times a day, bed rest'|| CHR(10) ||'VIIBRYD, once a day in the morning'|| CHR(10) ||'ETODOLAC, once a day in the evening', '|9|26|13|');
 INSERT INTO prescription (patientid, prescription, drugid) 
-VALUES(1, 'Tizanidine, twice a day', '12|2|7');
+VALUES(1, 'Tizanidine, twice a day'|| CHR(10) ||'ELIDEL once a day before sleep'|| CHR(10) ||'KETOCONAZOLE once a day in the morning', '|12|2|8|');
 INSERT INTO prescription (patientid, prescription, drugid) 
-VALUES(2, 'SILDENAFIL, once a day', '8|21|23');
+VALUES(2, 'SILDENAFIL, once a day'|| CHR(10) ||'SELENIUM SULFIDE, after shower'|| CHR(10) ||'STARLIX, twice a day', '|3|21|23|');
 INSERT INTO prescription (patientid, prescription, drugid) 
-VALUES(2, 'KETOCONAZOLE, once a day', '9|19|5');
+VALUES(2, 'KETOCONAZOLE, once a day'|| CHR(10) ||'PROGESTERONE, once a day, when you feel it is necessary'|| CHR(10) ||'VASOTEC twicw a day, before meal', '|2|19|5|');
 INSERT INTO prescription (patientid, prescription, drugid) 
-VALUES(3, 'VASOTEC, once a day', '11|14|7');
+VALUES(3, 'VASOTEC, once a day'|| CHR(10) ||'ELMIRON, three times a day'|| CHR(10) ||'TAZORAC, once a day after shower', '|5|14|7|');
 INSERT INTO prescription (patientid, prescription, drugid) 
-VALUES(4, 'TAZORAC twice a day ', '22|14|5');
+VALUES(4, 'TAZORAC twice a day'|| CHR(10) ||'ELMIRON, tree times a day during meal'|| CHR(10) ||'PATANASE, once a day in each nostril', '|7|14|18|');
 
 -- laboratory
 INSERT INTO laboratory (id, labname, labaddress, labphone) 
@@ -553,12 +560,14 @@ INSERT INTO laboratory (labname, labaddress, labphone)
 VALUES ('PrélèvExpress Enr ', '510-201, ch du Club-Marin, Verdun, QC H3E 1T4', '514-644-7264');
 
 -- tests
-INSERT INTO tests (id, res, ardate, depdate, labid) VALUES (1, 'good', '02-JUL-2014', '03-JUL-2014', 1);
-INSERT INTO tests (res, ardate, depdate, labid) VALUES ('very good', '05-JUL-2014', '06-JUL-2014', 2);
-INSERT INTO tests (res, ardate, depdate, labid) VALUES ('not good', '07-JUL-2014','09-JUL-2014', 3);
-INSERT INTO tests (res, ardate, depdate, labid) VALUES ('excellent', '02-JUL-2014', '03-JUL-2014', 4 );
-INSERT INTO tests (res, ardate, depdate, labid) VALUES ('perfect', '05-JUL-2014', '07-JUL-2014', 5);
-INSERT INTO tests (res, ardate, depdate, labid) VALUES ('so so', '07-JUL-2014', '08-JUL-2014', 3);
+INSERT INTO tests (id, res, ardate, depdate, labid) VALUES (1, 'good', '15-JUL-2014', '23-JUL-2014', 1);
+INSERT INTO tests (res, ardate, depdate, labid) VALUES ('very good', '15-JUL-2014', '16-JUL-2014', 2);
+INSERT INTO tests (res, ardate, depdate, labid) VALUES ('not good', '17-JUL-2014','19-JUL-2014', 3);
+INSERT INTO tests (res, ardate, depdate, labid) VALUES ('excellent', '12-JUL-2014', '23-JUL-2014', 4 );
+INSERT INTO tests (res, ardate, depdate, labid) VALUES ('perfect', '25-JUL-2014', '07-JUL-2014', 5);
+INSERT INTO tests (res, ardate, depdate, labid) VALUES ('excellent', '27-JUL-2014', '08-AUG-2014', 1);
+INSERT INTO tests (res, ardate, depdate, labid) VALUES ('excellent', '27-JUL-2014', '08-AUG-2014', 3);
+INSERT INTO tests (res, ardate, depdate, labid) VALUES ('excellent', '27-JUL-2014', '08-AUG-2014', 2);
 
 -- staff schedual table
 INSERT INTO staffSchedule (staffid, hospid, workday, workhouram, workhourpm) VALUES (1,1,'Mon', '9.00-10.00', '9.00-10.00');
@@ -578,21 +587,20 @@ INSERT INTO staffSchedule (staffid, hospid, workday, workhouram, workhourpm) VAL
 
 -- schedule
 INSERT INTO schedule (id, patientid, sdate, staffid, testid) 
-VALUES (1, 1, to_date('2014/08/02 12:30', 'yyyy/mm/dd hh24:mi'), 1, 1);
+VALUES (1, 1,  TO_TIMESTAMP('2014/08/02 12:30', 'yyyy/mm/dd hh24:mi'), 18, 1);
 INSERT INTO schedule (patientid, sdate, staffid, testid) 
-VALUES (2,to_date('2014/08/02 13:00', 'yyyy/mm/dd hh24:mi'), 1, 2);
+VALUES (1, TO_TIMESTAMP('2014/08/12 13:00', 'yyyy/mm/dd hh24:mi'), 18, 2);
 INSERT INTO schedule (patientid, sdate, staffid, testid) 
-VALUES (3, to_date('2014/08/02 13:00', 'yyyy/mm/dd hh24:mi'), 2, 3);
+VALUES (1, TO_TIMESTAMP('2014/08/22 13:00', 'yyyy/mm/dd hh24:mi'), 18, 3);
 INSERT INTO schedule (patientid, sdate, staffid, testid) 
-VALUES (1, to_date('2014/08/02 13:30', 'yyyy/mm/dd hh24:mi'), 3, 4);
+VALUES (2, TO_TIMESTAMP('2014/08/02 13:00', 'yyyy/mm/dd hh24:mi'), 1, 4);
 INSERT INTO schedule (patientid, sdate, staffid, testid) 
-VALUES (4, to_date('2014/08/02 12:30', 'yyyy/mm/dd hh24:mi'), 2, 5);
-
-
-
+VALUES (3,  TO_TIMESTAMP('2014/08/02 13:00', 'yyyy/mm/dd hh24:mi'), 2, 5);
+INSERT INTO schedule (patientid, sdate, staffid, testid) 
+VALUES (1,  TO_TIMESTAMP('2014/08/02 13:30', 'yyyy/mm/dd hh24:mi'), 2, 6);
+INSERT INTO schedule (patientid, sdate, staffid, testid) 
+VALUES (4,  TO_TIMESTAMP('2014/08/02 12:30', 'yyyy/mm/dd hh24:mi'), 2, 7);
+INSERT INTO schedule (patientid, sdate, staffid, testid) 
+VALUES (1,  TO_TIMESTAMP('2014/08/14 17:30', 'yyyy/mm/dd hh24:mi'), 2, 8);
 
 commit;
-
-
-
-

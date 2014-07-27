@@ -1,6 +1,7 @@
 package hcsmain;
 
 import java.util.Date;
+import java.util.Vector;
 
 /**
  *
@@ -17,17 +18,36 @@ public class PatientInfo {
     private String lname;
     private Date bdate;
     private String email;
-    private String address;
+    private String address; 
     private String zip;
     private String phone;
     private String medcard;
     private String insurrance;
     private String ssn;
-    private String anam;
+    private String anam; 
     private String diagn;
     private String gmedhistory;
     private String illnesshistory;
     private String medspechistory;
+    private String prescriptions;
+    private Vector<String> drugs;
+
+    public Vector<String> getDrugs() {
+        return drugs;
+    }
+
+    public void setDrugs(Vector<String> drugs) {
+        this.drugs = drugs;
+    }
+
+
+    public String getPrescriptions() {
+        return prescriptions;
+    }
+
+    public void setPrescriptions(String prescriptions) {
+        this.prescriptions = prescriptions;
+    }
 
     public String getMedspechistory() {
         return medspechistory;

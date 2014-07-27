@@ -4,16 +4,18 @@ package NursePane;
  *
  * @author Nadine
  */
+import hcsmain.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import hcssupport.Func;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.*;
+import javax.swing.event.*;
 
-public class PatientHistoryC implements  ActionListener, ItemListener {
+public class PatientHistoryC implements  ActionListener, ItemListener, ChangeListener {
     private Func function;
+    private Vector<StaffInfo> staff;
     private JTabbedPane PFPanel;
     private JButton submitB;
      //labels for text fields
@@ -45,6 +47,10 @@ public class PatientHistoryC implements  ActionListener, ItemListener {
             "Yes", "No", "Positive", "Negative", "Yes", "No", "Positive",
             "Negative", "Yes", "No"};
    private JRadioButton[] rb = new JRadioButton[18];
+    public static int ptcid;
+    private PatientInfo temppatient; 
+    private String[] str;
+//    private StringBuffer info = new StringBuffer();
     
     public PatientHistoryC(JTabbedPane Panel){
         this.PFPanel = Panel;
@@ -53,24 +59,47 @@ public class PatientHistoryC implements  ActionListener, ItemListener {
     private void init(){
         this.function = new Func();
         this.submitB = new JButton();
+        this.staff = new Vector();
+        this.function.fillStaff(staff);
 
     }
-    public void patientHistoryC(JPanel ptPane){
-       
+    public void patientHistoryC(JPanel ptPane, int loggedId){
+       // for welcome label
+        StringBuffer loggedUser = new StringBuffer();
+        JTextPane tpLoggedStaff = new JTextPane();
+
+        for(int i = 0; i < staff.size(); i++){
+            if (staff.get(i).getId() == loggedId){
+                loggedUser.append("<b>"+staff.get(i).getLname());
+                loggedUser.append(", ");
+                loggedUser.append(staff.get(i).getFname()+"</b>");
+                if(staff.get(i).getPosition().equalsIgnoreCase("gp"))
+                    loggedUser.append("  [logged as Dr.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("ns"))
+                    loggedUser.append("  [logged as R.N.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("ma"))
+                    loggedUser.append("  [logged as Med.As.]");
+                else if (staff.get(i).getPosition().equalsIgnoreCase("mo"))
+                    loggedUser.append("  [logged as Med.Of.]");
+
+            }
+        }
+        tpLoggedStaff.setContentType("text/html");
+        tpLoggedStaff.setText(loggedUser.toString());
+        this.function.setOpacity(tpLoggedStaff);
+        tpLoggedStaff.setEditable(false);
+
         //creating text fields with lables
         for (int i = 0; i < labels.length; i++) {
-            medTF[i] = new JTextField();
-            TitledBorder tl = BorderFactory.createTitledBorder
-                    (BorderFactory.createLineBorder(Color.DARK_GRAY), labels[i]);
-            tl.setTitleJustification(TitledBorder.LEFT);
-            medTF[i].setBorder(tl);
+            medTF[i] = new JTextField(15);
+            function.makeElementWithBorder(medTF[i], labels[i], Color.DARK_GRAY, false);
             medTF[i].setOpaque(false);
+//            medTF[i].setPreferredSize(new Dimension(80, 40));
         }
         
         for(int i =0; i<labelsL.length; i++){
             medL[i] = new JLabel(labelsL[i]);
         }
-
 
         //creating radio buttons
         for (int i = 0; i < rbstr.length; i++) {
@@ -112,131 +141,114 @@ public class PatientHistoryC implements  ActionListener, ItemListener {
                 timeTP.setText("<b>" + dateFormat.format(date.getTime()) + "</b>");
             }
         }).start();
-        ptPane.add(timeTP, new GridBagConstraints(0, 0, 1, 1, 0.5, 0, GridBagConstraints.CENTER,
+        ptPane.add(timeTP, new GridBagConstraints(0, 0, 1, 1, 0.5, 0,
+                GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(15, 15, 15, 15), 0, 0));
-        ptPane.add(medTF[0], new GridBagConstraints(1, 0, 2, 1, 0.5, 0.5,
+        ptPane.add(tpLoggedStaff, new GridBagConstraints(0, 0, 1, 1, 0, 0,
+                GridBagConstraints.NORTHWEST,
+                GridBagConstraints.BOTH, new Insets(50, 15, 0, 15), 0, 0));
+        ptPane.add(medTF[0], new GridBagConstraints(1, 0, 2, 1, 0.5, 0,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.BOTH, new Insets(5, 15, 5, 15), 0, 0));
-        ptPane.add(medTF[1], new GridBagConstraints(3, 0, 1, 1, 0.5, 0.5,
+                GridBagConstraints.BOTH, new Insets(15, 15, 15, 15), 0, 0));
+        ptPane.add(medTF[1], new GridBagConstraints(3, 0, 1, 1, 0.5, 0,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.BOTH, new Insets(5, 15, 5, 15), 0, 0));
-
-        ptPane.add(medL[0],
-                new GridBagConstraints(0, 1, 1, 1, 0, 0.5,
+                GridBagConstraints.BOTH, new Insets(15, 15, 15, 15), 0, 0));
+        ptPane.add(medL[0],new GridBagConstraints(0, 1, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[0], new GridBagConstraints(1, 1, 1, 1, 0, 0.5,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[1], new GridBagConstraints(1, 1, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
-
-        ptPane.add(medL[1],
-                new GridBagConstraints(2, 1, 1, 1, 0.5, 0.5,
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
+        ptPane.add(medL[1], new GridBagConstraints(2, 1, 1, 1, 0.5, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[2], new GridBagConstraints(3, 1, 1, 1, 0, 0.5,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[3], new GridBagConstraints(3, 1, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
-
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(medTF[2], new GridBagConstraints(0, 2, 2, 1, 0, 0.5,
                 GridBagConstraints.NORTHWEST,
-                GridBagConstraints.HORIZONTAL, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.HORIZONTAL, new Insets(15, 15, 5, 15), 0, 0));
         ptPane.add(medTF[3], new GridBagConstraints(2, 2, 2, 1, 0, 0.5,
                 GridBagConstraints.NORTHWEST,
-                GridBagConstraints.HORIZONTAL, new Insets(5, 15, 5, 15), 0, 0));
-
-        ptPane.add(medL[2],
-                new GridBagConstraints(0, 3, 1, 1, 0, 0.5,
+                GridBagConstraints.HORIZONTAL, new Insets(15, 15, 5, 15), 0, 0));
+        ptPane.add(medL[2], new GridBagConstraints(0, 3, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[4], new GridBagConstraints(1, 3, 1, 1, 0, 0.5,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[5], new GridBagConstraints(1, 3, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
-        ptPane.add(medL[3],
-                new GridBagConstraints(2, 3, 1, 1, 0, 0,
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
+        ptPane.add(medL[3], new GridBagConstraints(2, 3, 1, 1, 0, 0,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[6], new GridBagConstraints(3, 3, 1, 1, 0, 0.5,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[7], new GridBagConstraints(3, 3, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
-
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(medTF[4], new GridBagConstraints(0, 4, 2, 1, 0, 0.5,
                 GridBagConstraints.NORTHWEST,
-                GridBagConstraints.HORIZONTAL, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.HORIZONTAL, new Insets(15, 15, 5, 15), 0, 0));
         ptPane.add(medTF[5], new GridBagConstraints(2, 4, 2, 1, 0, 0.5,
                 GridBagConstraints.NORTHWEST,
-                GridBagConstraints.HORIZONTAL, new Insets(5, 15, 5, 15), 0, 0));
-
-        ptPane.add(medL[4],
-                new GridBagConstraints(0, 5, 1, 1, 0, 0.5,
+                GridBagConstraints.HORIZONTAL, new Insets(15, 15, 5, 15), 0, 0));
+        ptPane.add(medL[4], new GridBagConstraints(0, 5, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
                 GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[8], new GridBagConstraints(1, 5, 1, 1, 0, 0.5,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[9], new GridBagConstraints(1, 5, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
-
-        ptPane.add(medL[5],
-                new GridBagConstraints(2, 5, 1, 1, 0, 0.5,
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
+        ptPane.add(medL[5], new GridBagConstraints(2, 5, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[10], new GridBagConstraints(3, 5, 1, 1, 0, 0.5,
                 GridBagConstraints.WEST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[11], new GridBagConstraints(3, 5, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
                 GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
-
-        ptPane.add(medL[6],
-                new GridBagConstraints(0, 6, 1, 1, 0, 0.5,
+        ptPane.add(medL[6], new GridBagConstraints(0, 6, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[12], new GridBagConstraints(1, 6, 1, 1, 0, 0.5,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[13], new GridBagConstraints(1, 6, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
-
-        ptPane.add(medL[7],
-                new GridBagConstraints(2, 6, 1, 1, 0, 0.5,
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
+        ptPane.add(medL[7], new GridBagConstraints(2, 6, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[14], new GridBagConstraints(3, 6, 1, 1, 0, 0.5,
                 GridBagConstraints.WEST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[15], new GridBagConstraints(3, 6, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
-
-        ptPane.add(medL[8],
-                new GridBagConstraints(0, 7, 1, 1, 0, 0.5,
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
+        ptPane.add(medL[8], new GridBagConstraints(0, 7, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[16], new GridBagConstraints(1, 7, 1, 1, 0, 0.5,
                 GridBagConstraints.CENTER,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
         ptPane.add(rb[17], new GridBagConstraints(1, 7, 1, 1, 0, 0.5,
                 GridBagConstraints.EAST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
-
-       ptPane.add(medL[9],
-                new GridBagConstraints(0, 8, 4, 1, 0, 0.5,
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
+       ptPane.add(medL[9], new GridBagConstraints(0, 8, 4, 1, 0, 0.5,
                 GridBagConstraints.NORTHWEST,
-                GridBagConstraints.NONE, new Insets(5, 15, 5, 15), 0, 0));
+                GridBagConstraints.NONE, new Insets(15, 15, 15, 15), 0, 0));
 
         int pozY = 9, pozX = -1;
 
@@ -256,67 +268,113 @@ public class PatientHistoryC implements  ActionListener, ItemListener {
        ptPane.add(submitB, new GridBagConstraints(3, 11, 1, 1, 0, 0.5,
                 GridBagConstraints.LAST_LINE_END,
                 GridBagConstraints.NONE, new Insets(5, 15, 15, 15), 0, 0));
+       this.PFPanel.addChangeListener(this);
 
     }
     
     public void actionPerformed(ActionEvent e){
+        StringBuffer info = new StringBuffer();    
         Object button = e.getSource();
     if(button==this.submitB){
+       info.append(str[0]);
+        System.out.println("str 0 "+str[0]);
+       info.append(labels[2]+"|"+medTF[2].getText()+"|");
+       info.append(str[1]);
+       info.append(labels[3]+"|"+medTF[3].getText()+"|");
+       info.append(str[2]);
+       info.append(labels[4]+"|"+medTF[4].getText()+"|");
+       info.append(str[3]);
+       info.append(labels[5]+"|"+medTF[5].getText()+"|");
+       info.append(str[4]);
+       info.append(str[5]);
+       info.append(str[6]);
+       info.append(str[7]);
+       info.append(str[8]);
+       
+       StringBuffer tempinfo = new StringBuffer();
+       Vector<StringBuffer> temp = new Vector();
         //vaccins
         for(int i = 7; i<medTF.length; i++)
-        {
-            System.out.println("*****111111*********" + group[1].getSelection().getActionCommand());
-            System.out.println("*******00000*******" + group[0].getSelection().getActionCommand());
-//        System.out.println(" "+labels[i]+" "+medTF[i].getText());
-        }
+            {
+                tempinfo.append(labels[i]+"|"+medTF[i].getText()+"|");
+                temp.add(tempinfo);
+//                System.out.println(labels[i]+"|"+medTF[i].getText()+"|");
+    //            System.out.println(group[1].getSelection().getActionCommand()+"|");
+    //            System.out.println(group[0].getSelection().getActionCommand()+"|");
+    //
+            }
+       
+       for(int i = 0; i < temp.size(); i++){
+                info.append(temp.get(i).toString());
+            }
+             
+        System.out.println("!!!!"+info);
         
-
-        }
         
+        } 
     }
     
     public void itemStateChanged(ItemEvent e){
+
+        str = new String[9];
+        
+        String g;
          Object state = e.getItemSelectable();
-         int j = 0;
 
          for(int i =0; i<rb.length ; i++){
 
             if (state.equals(rb[i]) && e.getStateChange()==ItemEvent.SELECTED){
             
                 if(i <=1){
-                    System.out.println("lb "+labelsL[0]+"?????"+rb[i].getText());
-                   
+                    g = labelsL[0]+"|"+rb[i].getText()+"|";
+//                    str[0] = labelsL[0]+"|"+rb[i].getText()+"|";
+//                    System.out.println("str 0 "+str[0]);
+                    System.out.println(labelsL[0]+"|"+rb[i].getText()+"|");  
+                     System.out.println("????????????"+g); 
                 }
                 else if(i<=3 && i>1){
-                    System.out.println("lb "+labelsL[1]+"?????"+rb[i].getText());
+                    str[1] = labelsL[1]+"|"+rb[i].getText()+"|";
+//                    System.out.println(labelsL[1]+"|"+rb[i].getText()+"|");
                 }
                 else if(i<=5 && i>3){
-                    System.out.println("lb "+labelsL[2]+"?????"+rb[i].getText());
+                    str[2] = labelsL[2]+"|"+rb[i].getText()+"|";
+//                    System.out.println(labelsL[2]+"|"+rb[i].getText()+"|");
                 }
                 else if(i<=7 && i>5){
-                    System.out.println("lb "+labelsL[3]+"?????"+rb[i].getText());
+                    str[3] = labelsL[3]+"|"+rb[i].getText()+"|";
+//                    System.out.println(labelsL[3]+"|"+rb[i].getText()+"|");
                 } 
                 else if(i<=9 && i>7){
-                    System.out.println("lb "+labelsL[4]+"?????"+rb[i].getText());
+                    str[4] = labelsL[4]+"|"+rb[i].getText()+"|";
+//                    System.out.println(labelsL[4]+"|"+rb[i].getText()+"|");
                 } 
                 else if(i<=11 && i>9){
-                    System.out.println("lb "+labelsL[5]+"?????"+rb[i].getText());
+                    str[5] = labelsL[5]+"|"+rb[i].getText()+"|";
+//                    System.out.println(labelsL[5]+"|"+rb[i].getText()+"|");
                 } 
                 else if(i<=13 && i>11){
-                    System.out.println("lb "+labelsL[6]+"?????"+rb[i].getText());
+                    str[6] = labelsL[6]+"|"+rb[i].getText()+"|";
+//                    System.out.println(labelsL[6]+"|"+rb[i].getText()+"|");
                 } 
                 else if(i<=15 && i>13){
-                    System.out.println("lb "+labelsL[7]+"?????"+rb[i].getText());
+                    str[7] = labelsL[7]+"|"+rb[i].getText()+"|";
+//                    System.out.println(labelsL[7]+"|"+rb[i].getText()+"|");
                 } 
                 else if(i<=17 && i>15){
-                    System.out.println("lb "+labelsL[8]+"?????"+rb[i].getText());
+                    str[8] = labelsL[8]+"|"+rb[i].getText()+"|";
+//                    System.out.println(labelsL[8]+"|"+rb[i].getText()+"|");
                 } 
-            }
-            
+            }         
         }
-
     }
 
+    public void stateChanged(ChangeEvent e) {
+        ptcid = PatientHistory.pthid;
+        temppatient = new PatientInfo();
+        function.fillPatient(temppatient, ptcid);
+        medTF[0].setText(this.temppatient.getFname()+" "+this.temppatient.getLname());
+        medTF[1].setText(""+temppatient.getBdate());
+    }
 }
 
 
