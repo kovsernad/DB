@@ -5,6 +5,7 @@ package NursePane;
  * @author Nadine
  */
 import hcsmain.*;
+import hcssupport.DB;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -49,7 +50,7 @@ public class PatientHistoryC implements  ActionListener, ItemListener, ChangeLis
    private JRadioButton[] rb = new JRadioButton[18];
     public static int ptcid;
     private PatientInfo temppatient; 
-    private String[] str;
+    private String[] str = new String[9];
 //    private StringBuffer info = new StringBuffer();
     
     public PatientHistoryC(JTabbedPane Panel){
@@ -272,101 +273,106 @@ public class PatientHistoryC implements  ActionListener, ItemListener, ChangeLis
 
     }
     
-    public void actionPerformed(ActionEvent e){
-        StringBuffer info = new StringBuffer();    
-        Object button = e.getSource();
-    if(button==this.submitB){
-       info.append(str[0]);
-        System.out.println("str 0 "+str[0]);
-       info.append(labels[2]+"|"+medTF[2].getText()+"|");
-       info.append(str[1]);
-       info.append(labels[3]+"|"+medTF[3].getText()+"|");
-       info.append(str[2]);
-       info.append(labels[4]+"|"+medTF[4].getText()+"|");
-       info.append(str[3]);
-       info.append(labels[5]+"|"+medTF[5].getText()+"|");
-       info.append(str[4]);
-       info.append(str[5]);
-       info.append(str[6]);
-       info.append(str[7]);
-       info.append(str[8]);
-       
-       StringBuffer tempinfo = new StringBuffer();
-       Vector<StringBuffer> temp = new Vector();
-        //vaccins
-        for(int i = 7; i<medTF.length; i++)
-            {
-                tempinfo.append(labels[i]+"|"+medTF[i].getText()+"|");
-                temp.add(tempinfo);
-//                System.out.println(labels[i]+"|"+medTF[i].getText()+"|");
-    //            System.out.println(group[1].getSelection().getActionCommand()+"|");
-    //            System.out.println(group[0].getSelection().getActionCommand()+"|");
-    //
-            }
-       
-       for(int i = 0; i < temp.size(); i++){
-                info.append(temp.get(i).toString());
-            }
-             
-        System.out.println("!!!!"+info);
-        
-        
-        } 
-    }
     
     public void itemStateChanged(ItemEvent e){
 
-        str = new String[9];
-        
-        String g;
          Object state = e.getItemSelectable();
 
          for(int i =0; i<rb.length ; i++){
 
             if (state.equals(rb[i]) && e.getStateChange()==ItemEvent.SELECTED){
             
-                if(i <=1){
-                    g = labelsL[0]+"|"+rb[i].getText()+"|";
-//                    str[0] = labelsL[0]+"|"+rb[i].getText()+"|";
-//                    System.out.println("str 0 "+str[0]);
-                    System.out.println(labelsL[0]+"|"+rb[i].getText()+"|");  
-                     System.out.println("????????????"+g); 
+                if(i <=1 && rb[i].getText().equals( "Yes")){
+                    str[0] = labelsL[0]+"|"+rb[i].getText()+"|";
                 }
-                else if(i<=3 && i>1){
+                else {str[0] = "";}
+ 
+                if(i<=3 && i>1 && rb[i].getText().equals( "Yes")){
                     str[1] = labelsL[1]+"|"+rb[i].getText()+"|";
-//                    System.out.println(labelsL[1]+"|"+rb[i].getText()+"|");
                 }
-                else if(i<=5 && i>3){
+                else {str[1] = "";}
+                
+                if(i<=5 && i>3 && rb[i].getText().equals( "Yes")){
                     str[2] = labelsL[2]+"|"+rb[i].getText()+"|";
-//                    System.out.println(labelsL[2]+"|"+rb[i].getText()+"|");
-                }
-                else if(i<=7 && i>5){
+                }                
+                else {str[2] = "";}
+                
+                if(i<=7 && i>5 && rb[i].getText().equals( "Yes")){
                     str[3] = labelsL[3]+"|"+rb[i].getText()+"|";
-//                    System.out.println(labelsL[3]+"|"+rb[i].getText()+"|");
                 } 
-                else if(i<=9 && i>7){
+                else {str[3] = "";}
+                
+                if(i<=9 && i>7 && rb[i].getText().equals( "Yes")){
                     str[4] = labelsL[4]+"|"+rb[i].getText()+"|";
-//                    System.out.println(labelsL[4]+"|"+rb[i].getText()+"|");
                 } 
-                else if(i<=11 && i>9){
+                else {str[4] = "";}
+                
+                if(i<=11 && i>9 && rb[i].getText().equals( "Yes")){
                     str[5] = labelsL[5]+"|"+rb[i].getText()+"|";
-//                    System.out.println(labelsL[5]+"|"+rb[i].getText()+"|");
                 } 
-                else if(i<=13 && i>11){
+                else {str[5] = "";}
+                
+                if(i<=13 && i>11 && rb[i].getText().equals( "Yes")){
                     str[6] = labelsL[6]+"|"+rb[i].getText()+"|";
-//                    System.out.println(labelsL[6]+"|"+rb[i].getText()+"|");
                 } 
-                else if(i<=15 && i>13){
+                else {str[6] = "";}
+                
+                if(i<=15 && i>13 && rb[i].getText().equals( "Yes")){
                     str[7] = labelsL[7]+"|"+rb[i].getText()+"|";
-//                    System.out.println(labelsL[7]+"|"+rb[i].getText()+"|");
                 } 
-                else if(i<=17 && i>15){
+                else {str[7] = "";}
+                
+                if(i<=17 && i>15 && rb[i].getText().equals( "Yes")){
                     str[8] = labelsL[8]+"|"+rb[i].getText()+"|";
-//                    System.out.println(labelsL[8]+"|"+rb[i].getText()+"|");
-                } 
+                }
+                else {str[8] = "";}
             }         
         }
     }
+    
+    public void actionPerformed(ActionEvent e){
+        StringBuffer info = new StringBuffer();    
+        Object button = e.getSource();
+    if(button==this.submitB){
+        if(ptcid == 0){
+                 JOptionPane.showMessageDialog(null, "You have to chose a patient first!");
+            }
+            else{
+            
+            if(str[0].isEmpty() == false){
+                info.append(str[0]);
+                info.append(labels[2]+"|"+medTF[2].getText()+"|");
+            }
+            if(str[1].isEmpty() == false){
+                info.append(str[1]);
+                info.append(labels[3]+"|"+medTF[3].getText()+"|");
+            }
+            if(str[2].isEmpty() == false){
+               info.append(str[2]);
+               info.append(labels[4]+"|"+medTF[4].getText()+"|");
+            }
+            if (str[3].isEmpty() == false){
+               info.append(str[3]);
+               info.append(labels[5]+"|"+medTF[5].getText()+"|");
+            }
+               info.append(str[4]);
+               info.append(str[5]);
+               info.append(str[6]);
+               info.append(str[7]);
+               info.append(str[8]);
+
+            //vaccins
+            for(int i = 7; i<medTF.length; i++)
+                {
+                    info.append(labels[i]+"|"+medTF[i].getText()+"|");
+                }
+            }        
+//         System.out.println("!!!!????!!!!!!"+info);
+         DB.db.insertSpecHistory(info.toString(), ptcid);
+         JOptionPane.showMessageDialog(null, "The History is submitted!");
+        } 
+    }
+    
 
     public void stateChanged(ChangeEvent e) {
         ptcid = PatientHistory.pthid;

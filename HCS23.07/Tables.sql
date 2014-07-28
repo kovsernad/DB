@@ -484,7 +484,7 @@ INSERT INTO patient (id, fname, lname, bdate, email, address,
 zip, phone, medcard, insurrance, ssn, anamnesis, diagnosis, gmedhistory, illnesshistory, medspechistory, login, password)
 VALUES (1, 'Carol B.', 'Chapman', '21-MAR-1983', 'CarolBChapman@rhyta.com',  
 '1214 Avenue Shorecrest Laval', 'P0C 1A0', '514-555-0142' ,'CHAC 1234 5678', 
-'1Z 132 162 58 7392 178 6', '552180598', 'Headache and fever (39.3 C). The general indisposition ', 
+'1Z 132 162 58 7392 178 6', '552180598', 'Headache and fever (39.3 C). The general indisposition', 
 'the flu',
 '|Previous Doctor:|Dr.Smith|Previous Medical Institution:|St.Mary clinic|Date of the Last Exam:|12.06.2014|The Reason of the Last Exam:|severe headache|The Hepatitis virus, if any.|no|The heart disease if any.|no|The Tabacoo History, if any.|no|The Alcohol History, if any.|once a month|The chronic diseases, if any:|no|The Allergies, if any:|peanuts|The Drug reactions, if any:|no|Describe any special features:|no|',
 'Shortness of breathe|Seasonal allergies|Tonsillitis|Headaches/Migraines|Anemia or blood problems|',
@@ -497,18 +497,18 @@ medcard, insurrance, ssn, anamnesis, diagnosis, login, password)
 VALUES ('Margaret', 'Egan', '25-DEC-1925' , 'MargaretDEgan@jourrapide.com',
 '7493 Rue André Breton Laval', 'M5H 1P6', '514-435-0172'  ,'EGAM 5521 8059', 
 '1Z 578 473 93 3515 049 9', '756945994',
-'tingling, pins and needles or numbness, muscle weakness, very pronounced reflexes, ' ||
-'muscle spasms, or difficulty in moving; difficulties with coordination and balance (ataxia); ' ||
-'problems with speech or swallowing, visual problems (nystagmus, optic neuritis or double vision), ' || 
-'feeling tired, acute or chronic pain, and bladder ','Multiple sclerosis',  'Egan', 'nGxum2uOdpU=');
+'Tingling, pins and needles or numbness, muscle weakness, very pronounced reflexes. '||
+'Muscle spasms, or difficulty in moving. Difficulties with coordination and balance (ataxia). '||
+'Problems with speech or swallowing. Visual problems (nystagmus, optic neuritis or double vision). ' ||
+'Feeling tired, acute or chronic pain, and bladder. ','Multiple sclerosis,',  'Egan', 'nGxum2uOdpU=');
 
 INSERT INTO patient (fname, lname, bdate, email, address, zip, phone, 
 medcard, insurrance, ssn, anamnesis, diagnosis, login, password)
 VALUES ('Walter', 'Thompson', '21-NOV-1955' , 'WalterLThompson@rhyta.com', 
 '66 Rue Caumartin Laval', 'Y0B 1G', '514-785-0112' ,'THOW 1234 5678', 
-'1Z 878 A10 27 1315 029 1', '226724300',' shortness of breath, fatigue, non-productive cough,' ||
-' angina pectoris, fainting or syncope' ,'Pulmonary hypertension , redness, itching ' || 
-'and discomfort between the fingers mycosis',  'Thompson', 'nGxum2uOdpU=');
+'1Z 878 A10 27 1315 029 1', '226724300','Shortness of breath. Fatigue, non-productive cough,' ||
+' angina pectoris, fainting or syncope' ,'Pulmonary hypertension , redness, itching, ' || 
+'discomfort between the fingers mycosis',  'Thompson', 'nGxum2uOdpU=');
 
 INSERT INTO patient (fname, lname, bdate, email, address, zip, phone, 
 medcard, insurrance, ssn, anamnesis, diagnosis, login, password)
@@ -521,8 +521,8 @@ medcard, insurrance, ssn, anamnesis, diagnosis, login, password)
 VALUES ('John', 'Pinckney', '21-MAR-1983', 'JohnIPinckney@armyspy.com' ,  
 '12751 Rue Tracy Montreal', 'V3C 4S7', '514-995-0170' ,'PINJ 4660 5016', 
 '1Z 100 693 94 9107 530 0', '026961748','headaches particularly at the back of ' || 
-'the head and in the morning, as well as lightheadedness, vertigo, tinnitus ' || 
-'(buzzing or hissing in the ears), high pressure 1790/120', 'Hypertension',  'Pinckney', 'nGxum2uOdpU=');
+'the head and in the morning. As well as lightheadedness, vertigo, tinnitus ' || 
+'(buzzing or hissing in the ears). High pressure 1790/120', 'Hypertension',  'Pinckney', 'nGxum2uOdpU=');
 
 INSERT INTO patient (fname, lname, bdate, email, address, zip, phone, 
 medcard, insurrance, ssn, anamnesis, diagnosis, login, password)
@@ -555,9 +555,9 @@ VALUES ('Radiologie Varad ', '150, rue Sainte-Catherine O, Montréal, QC H2X 3Y2'
 INSERT INTO laboratory (labname, labaddress, labphone) 
 VALUES (' RMD Sommeil ','142-100, ch Rockland, Mont-Royal, QC H3P 2V9','514-341-2111');
 INSERT INTO laboratory (labname, labaddress, labphone) 
-VALUES ('Clinique Médicale Plexo ', '6100 Avenue du Boisé, Montréal, QC H3S 2W1', '514-251-9331');
+VALUES ('Clinique Medicale Plexo ', '6100 Avenue du Boisé, Montréal, QC H3S 2W1', '514-251-9331');
 INSERT INTO laboratory (labname, labaddress, labphone) 
-VALUES ('PrélèvExpress Enr ', '510-201, ch du Club-Marin, Verdun, QC H3E 1T4', '514-644-7264');
+VALUES ('PrelevExpress Enr ', '510-201, ch du Club-Marin, Verdun, QC H3E 1T4', '514-644-7264');
 
 -- tests
 INSERT INTO tests (id, res, ardate, depdate, labid) VALUES (1, 'good', '15-JUL-2014', '23-JUL-2014', 1);

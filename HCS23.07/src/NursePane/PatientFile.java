@@ -36,6 +36,7 @@ public class PatientFile implements KeyListener, ListSelectionListener, ActionLi
     private int drugId;
     private String drugstr = "|";
     private PatientInfo temppatient;
+    private  String st, st1, st2;
 
     public PatientFile() {
         this.init();
@@ -220,7 +221,9 @@ public class PatientFile implements KeyListener, ListSelectionListener, ActionLi
         patientList.addListSelectionListener(this);
         drugList.addListSelectionListener(this);
         this.PFPanel.addChangeListener(this);
-
+        for(int i =0; i < patientTA.length; i++){
+        patientTA[i].addKeyListener(this);
+        }
         this.submitB.setText("Submit");
         this.submitB.addActionListener(this);
 
@@ -278,14 +281,36 @@ public class PatientFile implements KeyListener, ListSelectionListener, ActionLi
     
      public void actionPerformed(ActionEvent e) {
         if ((JButton) e.getSource() == this.submitB) {
-            DB.db.diagAnamUpdate(patientTA[0].getText(), patientTA[1].getText(), ptid);
-            String tmp = patientTA[2].getText();
-            DB.db.prescInsert(tmp, ptid, drugstr);
+
+            if(ptid == 0){
+                 JOptionPane.showMessageDialog(null, "You have to chose a patient first!");
+            }
+            else{
+            DB.db.diagAnamUpdate(st, st1, ptid);
+            if(st2 == null){
+                st2 = patientTA[2].getText();
+            }
+            DB.db.prescInsert(st2, ptid, drugstr);
             JOptionPane.showMessageDialog(null, "The Diagnosis, Anamnesis and Prescription were submitted!");
+            }
         }
     }
 
     public void keyPressed(KeyEvent e) {
+
+        if(e.getKeyCode() == e.VK_ENTER && patientTA[0].isFocusOwner() == true){
+            patientTA[0].append(".");
+            st = patientTA[0].getText();          
+        }
+
+         if(e.getKeyCode() == e.VK_ENTER && patientTA[1].isFocusOwner() == true){
+            patientTA[1].append(".");
+            st1 = patientTA[1].getText();
+        }
+        else if(e.getKeyCode() == e.VK_ENTER && patientTA[2].isFocusOwner() == true){
+             patientTA[2].append(".");
+             st2 = patientTA[2].getText();
+        }
     }
 
     public void keyTyped(KeyEvent e) {

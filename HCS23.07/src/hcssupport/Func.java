@@ -207,10 +207,7 @@ public class Func<T> {
 //                patient.setDrugs(drug);  
 //                }
 //                DB.db.close();
-                
-                
-                
-                
+                               
             }
         } catch (SQLException ex) {
             Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
@@ -238,8 +235,6 @@ public class Func<T> {
             Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
             DB.db.close();
         }
-
-
     }
 
     public void setElementList(DefaultListModel listModel, boolean positionTable, boolean qualificationTable) {
@@ -634,9 +629,7 @@ public class Func<T> {
             Logger.getLogger(Func.class.getName()).log(Level.SEVERE, null, ex);
             DB.db.close();
         }
-
     }
-
 
     /* Added 08.07.2014*/
     public void checkStaffSchedule(Vector<StaffInfo> staff, String toMatch, JTable tableElement, JList item) {
@@ -672,7 +665,6 @@ public class Func<T> {
             while (res.next()) {
                 staffId = res.getInt("id");
             }
-
             //got schedule for staff and hospital
             res = DB.db.staffSchedule(staffId, hospId);
             while (res.next()) {
@@ -796,7 +788,6 @@ public class Func<T> {
         }
     }
     //added 09.07 by Nadine
-
     public void patientList(Vector<PatientInfo> patient, JTextField tf, DefaultListModel list) {
         list.removeAllElements();
         Vector<StringBuffer> t = new Vector();
@@ -895,10 +886,10 @@ public class Func<T> {
             }
         }
     }
+    //changed and tested 27.07
     public void patientHisoryInfo(Vector<PatientInfo> patient, String toMatch, JTextPane[] patientTP){
-
                String ghstr, ilstr, spstr;
-                int id = 0;
+
                 StringBuffer infogh = new StringBuffer();
                 StringBuffer infoil = new StringBuffer();
                 StringBuffer infosp = new StringBuffer();
@@ -915,12 +906,14 @@ public class Func<T> {
             for (int i = 0; i< patient.size(); i++){
                 
                 ghstr = patient.get(i).getGmedhistory();
+                ilstr = patient.get(i).getIllnesshistory();
+                spstr = patient.get(i).getMedspechistory();
                 
                 if(ghstr != null) {
                 String[] ghparts = ghstr.split("[|]");
                 
                         for( i=0; i< ghparts.length; i++){
-                            System.out.println("1111"+ghparts[i]);
+                          
                                 if ( i%2 != 0){
                                     ghstr =  "<span style='font-size: 16pt'>"
                                                 +ghparts[i]+
@@ -936,40 +929,31 @@ public class Func<T> {
                             patientTP[0].setText(infogh.toString());
                             }     
                         }
-                
-                ilstr = patient.get(i).getIllnesshistory();
-                
+                   
                 if(ilstr != null) {
                 String[] ilparts = ilstr.split("[|]");
                 
                         for( i=0; i< ilparts.length; i++){
-                                if ( i%2 != 0){
-                                    ilstr =  "<span style='font-size: 16pt'>"
-                                                +ilparts[i]+
-                                                "</span><br /><br />";
-                                    infoil.append(ghstr);
-                                }
-                                else if ( i%2 == 0){
+
                                     ilstr =  "<b><span style='font-size: 16pt'>"
                                                 +ilparts[i]+
                                                 "</span></b><br /><br />";
                                     infoil.append(ilstr);
-                                }
-                            }
-                                        patientTP[1].setText(infoil.toString());
-                        }
 
-                spstr = patient.get(i).getMedspechistory();
-                
+                             patientTP[1].setText(infoil.toString());
+                            }                   
+                        }
+              
                 if(spstr != null) {
                 String[] spparts = spstr.split("[|]");
                 
                         for( i=0; i< spparts.length; i++){
+                            
                                 if ( i%2 != 0){
                                     spstr =  "<span style='font-size: 16pt'>"
                                                 +spparts[i]+
                                                 "</span><br /><br />";
-                                    infosp.append(ghstr);
+                                    infosp.append(spstr);
                                 }
                                 else if ( i%2 == 0){
                                     spstr =  "<b><span style='font-size: 16pt'>"
@@ -977,18 +961,20 @@ public class Func<T> {
                                                 "</span></b><br /><br />";
                                     infosp.append(spstr);
                                 }
-                            }
-
-                                         patientTP[2].setText(infosp.toString());
+                                patientTP[2].setText(infosp.toString());
+                            }                                      
                 }  
             }                            
     }
     
     //added 10/07 by Nadine
     public int patientInfo(Vector<PatientInfo> patient, String toMatch, JTextField[] tf, JTextPane tp, JTextPane[] patientTP) {
+        String stranam = "";
         DB.db.openConnection();
         int id = 0;
         StringBuffer info = new StringBuffer();
+        StringBuffer infoanam = new StringBuffer();
+        
 
         try {
             int ind = -1;
@@ -1028,11 +1014,40 @@ public class Func<T> {
                 tf[1].setText(res.getDate("bdate").toString());
                 if (tp == null) {
                     if (patientTP != null) {
-                        patientTP[2].setText(res.getString("anamnesis"));
+                        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//                       infoanam.append("");
+                       stranam = res.getString("anamnesis");
+                      
+                       
+                       if(stranam != null){
+                           String anamparts[] = stranam.split("[.]");
+                           for(int i = 0; i<anamparts.length; i++)
+                           {
+                           System.out.println("anam "+anamparts[i]);
+                           
+                           infoanam.append("<span style='font-size: 18pt'>"+
+                                                anamparts[i]+"</span><br />");
+                           
+//                           String[] parts = anamparts[i].split("[.]");
+                           
+//                            for (i = 0; i< parts.length; i++){
+//                                infoanam.append("<span style='font-size: 18pt'>"+
+//                                                parts[i]+"</span><br /><br />");
+//                               System.out.println("parts "+parts[i]);
+//                            }
+//                           
+                           
+                           }
+                       }
+                        
+                        
+                        
+                        patientTP[2].setText(infoanam.toString());
                         patientTP[3].setText(res.getString("diagnosis"));
 
                         ResultSet rres = DB.db.prescription(id);
                         while (rres.next()) {
+                            //|| CHR(10) ||
                             patientTP[1].setText(rres.getString("prescription"));
                         }
                     }

@@ -165,6 +165,10 @@ public class PatientIllness implements ActionListener, ItemListener, ChangeListe
 
         public void actionPerformed(ActionEvent e){
         if((JButton) e.getSource()==this.nextB){
+            if(ptiid == 0){
+                 JOptionPane.showMessageDialog(null, "You have to chose a patient first!");
+            }
+            else{
             this.PFPanel.setSelectedIndex(4);
             StringBuffer info = new StringBuffer();
             info.append(str);
@@ -172,7 +176,8 @@ public class PatientIllness implements ActionListener, ItemListener, ChangeListe
             
             DB.db.insertIllHistory(info.toString(), ptiid);
        
-            System.out.println(info.toString());
+//            System.out.println(info.toString());
+            }
         }
     }
         public void itemStateChanged(ItemEvent e){

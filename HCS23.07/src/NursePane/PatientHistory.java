@@ -188,6 +188,10 @@ public class PatientHistory implements KeyListener, ListSelectionListener, Actio
     }
     public void actionPerformed(ActionEvent e){
         if((JButton) e.getSource()==this.nextB){
+            if(pthid == 0){
+                 JOptionPane.showMessageDialog(null, "You have to chose a patient first!");
+            }
+            else{
             this.PFPanel.setSelectedIndex(3);
             for(int i = 2; i<labels1.length; i++)
             {
@@ -198,7 +202,7 @@ public class PatientHistory implements KeyListener, ListSelectionListener, Actio
                 this.gmedhistiry+=txtlable[j]+"|"+historyTA[j].getText()+"|";               
             }
             DB.db.insertGmedHistory(gmedhistiry, pthid);
-
+            }
         }
     }
         
