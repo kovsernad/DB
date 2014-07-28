@@ -281,14 +281,27 @@ public class PatientFile implements KeyListener, ListSelectionListener, ActionLi
     
      public void actionPerformed(ActionEvent e) {
         if ((JButton) e.getSource() == this.submitB) {
-
+            st =patientTA[0].getText()+".\n"; 
+            st1 =patientTA[1].getText()+".\n";
+             st2 = patientTA[2].getText()+".\n";
+             st2 = st2.replaceAll("\n", ";");
             if(ptid == 0){
                  JOptionPane.showMessageDialog(null, "You have to chose a patient first!");
             }
             else{
+                if(st.isEmpty() == false)
+                {
+                    st = st.replaceAll("\n", ";");
+//                    System.out.println("!!!!!!!!!!!!!!!!!!!"+st);
+                }
+                if (st1.isEmpty() == false)
+                {
+                    st1 = st1.replaceAll("\n", ";");
+                }
+//                System.out.println("st "+st+"\nst1 "+st1+"\nst2 "+st2+";");
             DB.db.diagAnamUpdate(st, st1, ptid);
             if(st2 == null){
-                st2 = patientTA[2].getText();
+                st2 = patientTA[2].getText()+";";
             }
             DB.db.prescInsert(st2, ptid, drugstr);
             JOptionPane.showMessageDialog(null, "The Diagnosis, Anamnesis and Prescription were submitted!");
@@ -299,17 +312,14 @@ public class PatientFile implements KeyListener, ListSelectionListener, ActionLi
     public void keyPressed(KeyEvent e) {
 
         if(e.getKeyCode() == e.VK_ENTER && patientTA[0].isFocusOwner() == true){
-            patientTA[0].append(".");
-            st = patientTA[0].getText();          
+            patientTA[0].append(".");          
         }
 
          if(e.getKeyCode() == e.VK_ENTER && patientTA[1].isFocusOwner() == true){
             patientTA[1].append(".");
-            st1 = patientTA[1].getText();
         }
         else if(e.getKeyCode() == e.VK_ENTER && patientTA[2].isFocusOwner() == true){
              patientTA[2].append(".");
-             st2 = patientTA[2].getText();
         }
     }
 
@@ -317,6 +327,7 @@ public class PatientFile implements KeyListener, ListSelectionListener, ActionLi
     }
 
     public void stateChanged(ChangeEvent e) {
+        if(ptid > 0){
         ptid = PatientForm.id;
         temppatient = new PatientInfo();
         function.fillPatient(temppatient, ptid);
@@ -324,5 +335,6 @@ public class PatientFile implements KeyListener, ListSelectionListener, ActionLi
         patient2TF[1].setText(""+temppatient.getBdate());
 
         function.patientPersonalInfo(temppatient, null, patientTP, null);
+        }
     }
 }

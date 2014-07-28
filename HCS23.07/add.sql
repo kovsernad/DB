@@ -5,5 +5,6 @@ VALUES ('Bill.', 'Voore', '15-May-1972' ,  'moore@dayrep.com' ,
 
 INSERT INTO staffSchedule VALUES (7,3);
 INSERT INTO staffSchedule VALUES (7,1);
+SELECT * FROM prescription WHERE patientid = '1';
 
 commit;

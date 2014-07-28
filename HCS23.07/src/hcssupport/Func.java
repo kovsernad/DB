@@ -173,14 +173,17 @@ public class Func<T> {
                     patient.setMedspechistory(tempsp);
                 }
 ////////// not all patients have prescription!!!!!!!!! 
-//                
+                
 //                ResultSet res = DB.db.prescription();
 //                int currPrescr = -1;
-//
+////                  if(patientId == )
 //                while (res.next()) {
+//                    if(res.getInt("patientid") == patientId){
 //                    if (res.getInt("patientid") == patientId && res.getInt("id") > currPrescr) {
 //                        currPrescr = res.getInt("id");
 //                    }
+//                }
+//                    else{DB.db.close();}
 //                }
 //                res = DB.db.prescription(currPrescr);
 //                String[] drugId = null;
@@ -970,13 +973,22 @@ public class Func<T> {
     //added 10/07 by Nadine
     public int patientInfo(Vector<PatientInfo> patient, String toMatch, JTextField[] tf, JTextPane tp, JTextPane[] patientTP) {
         String stranam = "";
+        String strdiag = "";
         DB.db.openConnection();
         int id = 0;
         StringBuffer info = new StringBuffer();
         StringBuffer infoanam = new StringBuffer();
+        Vector<StringBuffer> t = new Vector();
+        StringBuffer infodiag = new StringBuffer();
+        Vector<StringBuffer> tt = new Vector();
+        
+        int l=0, ll=0;
         
 
         try {
+            for(int i = 0; i<patientTP.length; i++ ){
+            patientTP[i].setText("");}
+            
             int ind = -1;
             String lName = toMatch.substring(0, toMatch.indexOf(","));
             String dBirth = toMatch.substring(toMatch.indexOf("(") + 1, toMatch.indexOf(")"));
@@ -1015,40 +1027,89 @@ public class Func<T> {
                 if (tp == null) {
                     if (patientTP != null) {
                         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//                       infoanam.append("");
+                     
+                       infoanam.append("<hr>");
+                       infodiag.append("<hr>");
                        stranam = res.getString("anamnesis");
-                      
+                       strdiag = res.getString("diagnosis");
                        
                        if(stranam != null){
-                           String anamparts[] = stranam.split("[.]");
-                           for(int i = 0; i<anamparts.length; i++)
+                           
+                           String anamparts[] = stranam.split("[\n\n]");
+                           
+                           l = anamparts.length-3;
+                           
+                               if(l<3)
+                               {
+                                   l = 0;
+                               }
+                          
+                           for(int i = l; i<anamparts.length; i++)
                            {
-                           System.out.println("anam "+anamparts[i]);
-                           
-                           infoanam.append("<span style='font-size: 18pt'>"+
-                                                anamparts[i]+"</span><br />");
-                           
-//                           String[] parts = anamparts[i].split("[.]");
-                           
-//                            for (i = 0; i< parts.length; i++){
-//                                infoanam.append("<span style='font-size: 18pt'>"+
-//                                                parts[i]+"</span><br /><br />");
-//                               System.out.println("parts "+parts[i]);
-//                            }
-//                           
-                           
+                               if(anamparts[i].isEmpty() == false){
+                                   
+                                   anamparts[i] = anamparts[i].replaceAll("[;]", "<br />");
+                                   anamparts[i] =  anamparts[i].substring(0, 1).toUpperCase()+ anamparts[i].substring(1);
+                                   StringBuffer tmp = new StringBuffer();
+                                   tmp.append("<span style='font-size: 18pt'>"+
+                                                        anamparts[i]+"</span><hr><br />");
+
+                                   t.add(tmp);}
+
+                           }
+                           for(int i = 0; i<t.size(); i++ ){
+                               infoanam.append("<p>The anamnesis</p>");
+                               infoanam.append(t.get(i).toString());
                            }
                        }
-                        
-                        
-                        
-                        patientTP[2].setText(infoanam.toString());
-                        patientTP[3].setText(res.getString("diagnosis"));
+                      
+                       if(strdiag != null){
+                           String diagparts[] = strdiag.split("[\n\n]");
+                           
+                            ll = diagparts.length-3;
+                           if(ll<3)
+                           {
+                               ll = 0;
+                           }
+                      
+                           for(int i = ll; i<diagparts.length; i++)
+                           {
+                               if(diagparts[i].isEmpty() == false){
+                                   diagparts[i] =  diagparts[i].replaceAll("[;]", "<br />");
+                                   diagparts[i] =  diagparts[i].substring(0, 1).toUpperCase()+ diagparts[i].substring(1);
+                                   StringBuffer tmp = new StringBuffer();
+                                   tmp.append("<span style='font-size: 18pt'>"+
+                                                        diagparts[i]+"</span><hr><br />");
 
-                        ResultSet rres = DB.db.prescription(id);
+                                   tt.add(tmp);}
+
+                           }
+                           for(int i = 0; i<tt.size(); i++ ){
+                               infodiag.append("<p>The diagnosis</p>");
+                               infodiag.append(tt.get(i).toString());
+                           }
+                       }
+                                           
+                        patientTP[2].setText(infoanam.toString());
+                        
+                        patientTP[3].setText(infodiag.toString());
+                        StringBuffer infopr = new StringBuffer();
+                        ResultSet rres = DB.db.prescriptionByPatientId(Integer.toString(id));
                         while (rres.next()) {
-                            //|| CHR(10) ||
-                            patientTP[1].setText(rres.getString("prescription"));
+                            
+                                String part[] = rres.getString("prescription").split("[\n]");
+                                
+                                for(int o =0; o<part.length; o++ ){
+                                    System.out.println("\npart "+part[o]);
+                                    String subpart[] = part[o].split(",");
+                                     
+                                    
+                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                    infopr.append("<span style='font-size: 18pt'>");
+                                    
+                                }
+                                patientTP[1].setText(rres.getString("prescription")); 
                         }
                     }
                 }

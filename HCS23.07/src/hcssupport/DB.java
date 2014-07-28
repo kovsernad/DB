@@ -456,9 +456,26 @@ public class DB {
     public ResultSet prescription(int id) {
         ResultSet res = null;
         try {
+            
             PreparedStatement ins =
                     c.prepareStatement("SELECT * FROM prescription WHERE id = ?");
             ins.setInt(1, id);
+            res = ins.executeQuery();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return res;
+    }
+    
+    //added by Nadine 28.07
+    public ResultSet prescriptionByPatientId(String id) {
+        ResultSet res = null;
+        try {
+            
+            PreparedStatement ins =
+                    c.prepareStatement("SELECT * FROM prescription WHERE patientid = ?");
+            ins.setString(1, id);
             res = ins.executeQuery();
         } catch (Exception ex) {
             ex.printStackTrace();
