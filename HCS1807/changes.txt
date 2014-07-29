@@ -1,3 +1,0 @@
-Func
-	1. //changed by Nadine 25 july , text Pane added as a parameter
-       public void patientPersonalInfo(PatientInfo patient, JTextField[] tfPatient, JTextPane tp)

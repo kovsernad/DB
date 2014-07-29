@@ -1,0 +1,46 @@
+TODO:
+
+on 28.07.2014
+Nurse pane.
+-----------
+from 3rd to 5th pane: Patient and patient birth date setted to null. Need to check.
+
+Doctor pane.
+------------
+Time field in PatientFile need to be shifted to right and down, Like on another tabs.
+
+On 3rd tab patient med history. Fields doesn't fill up.
+
+Patient's name need to change in the all cases. Changing in the 3rd tab should lead to changing on another. 
+
+
+Nurse end Doctor
+----------------
+patient anamnesis check for CRLF.
+
+
+Medical Assistants
+------------------
+check listener for doctor or nurse.
+fields need to be arranged (less important).
+
+Take to account: connection must be opened BEFORE calling function
+
+==============
+line 543. Staffs.java ( this.function.addStaffInfo(staff, staffTF, positionList, qualificationList, hospitalsList, table);)
+---------
+Add validation input.
+
+
+Jul 21, 2014 5:35:22 PM hcssupport.DB addStaff
+SEVERE: null
+java.text.ParseException: Unparseable date: "12/05/1973"
+-----------------
+To make date to format dd-MMM-YYYY automaticaly
+
+
+
+actionListener:
+add staff.
+------------
+to make proper validatioin if items was added
